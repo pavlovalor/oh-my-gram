@@ -1,135 +1,141 @@
-# Turborepo starter
+# Skill Showcase – Instagram‑Style Social Platform
 
-This Turborepo starter is maintained by the Turborepo core team.
+A full‑stack, microservice‑oriented clone of Instagram that demonstrates modern engineering skills and tooling. The project delivers a minimal yet complete social‑media experience – feeds, stories, chat, subscriptions, search and recommendations – while showcasing production‑grade patterns such as event‑driven architecture, CQRS, polyglot persistence and a monorepo workflow.
 
-## Using this example
+---
 
-Run the following command:
+## ✨ Key Functionalities
 
-```sh
-npx create-turbo@latest
-```
+| Domain            | Features                                                        |
+| ----------------- | --------------------------------------------------------------- |
+| **Social Feed**   | Infinite scroll, image/video posts, like & comment interactions |
+| **Profiles**      | Editable bio, avatar, grid/list views, follower counts          |
+| **Subscriptions** | Follow / unfollow, private vs. public accounts, notifications   |
+| **Chat**          | Real‑time 1‑to‑1 and group messaging, typing indicators         |
+| **Discovery**     | Search by username / hashtags, algorithmic recommendations      |
+| **Notifications** | Cross‑service push for likes, follows, comments & messages      |
 
-## What's inside?
+---
 
-This Turborepo includes the following packages/apps:
+## 🏗️ Tech Stack
 
-### Apps and Packages
+| Layer              | Technology                                                                                                                       | Purpose                                     |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| **API & Services** | **NestJS** microservices                                                                                                         | Business logic, validation, CQRS            |
+| **Event Backbone** | **NATS JetStream**                                                                                                               | Reliable async messaging, sagas             |
+| **Datastores**     | **PostgreSQL** – relational core <br> **MongoDB** – document / feed timelines <br> **Redis** – caching, pub/sub, session storage | Polyglot persistence optimized per workload |
+| **Frontend**       | **React 18** + **Astro**                                                                                                         | Island‑architecture SPA with partial SSR    |
+| **Dev Workflow**   | **pnpm workspaces** / **Nx** monorepo                                                                                            | Unified scripts, generators, linting        |
+| **Infra**          | Docker Compose / K8s Helm charts                                                                                                 | Local dev & cloud‑native deploy             |
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+---
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+## 🖼️ High‑Level Architecture
 
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
-
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+```mermaid
+---
+config:
+  theme: redux
+---
+flowchart LR
+ subgraph s1["Entry"]
+        GatewayPublicHTTP["HTTP Gateway<br>[Public]"]
+        GatewayBackofficeHTTP["HTTP Gateway<br>[Backoffice]"]
+        GatewayPublicWS["WS Gateway<br>[Public]"]
+        GatewayBackofficeWS["WS Gateway<br>[Backoffice]"]
+  end
+ subgraph s2["Core"]
+        n3["Service<br>[Identity]"]
+        n4["Service<br>[Profile]"]
+        n5["Service<br>[Feed]"]
+        n6["Service<br>[Chat]"]
+        n9["Cache<br>[Redis]"]
+        n8["Database<br>[Mongo]"]
+        n7["Database<br>[Postgres]"]
+  end
+    FrontendPublic(["Frontend<br>[Public]"]) --> GatewayPublicHTTP
+    FrontendBackoffice(["Frontend<br>[Backoffice]"]) --> GatewayBackofficeHTTP
+    GatewayPublicWS --> FrontendPublic
+    GatewayBackofficeWS --> FrontendBackoffice
+    GatewayPublicHTTP --> n1["Command/Query bus"]
+    GatewayBackofficeHTTP --> n1
+    n2["Event bus"] --> GatewayBackofficeWS & GatewayPublicWS
+    n1 --> n3 & n4 & n5 & n6
+    n6 --> n9 & n8
+    n5 --> n9
+    n4 --> n9
+    n3 --> n7
+    n3 --> n9
+    GatewayPublicHTTP@{ shape: rounded}
+    GatewayBackofficeHTTP@{ shape: rounded}
+    GatewayPublicWS@{ shape: rounded}
+    GatewayBackofficeWS@{ shape: rounded}
+    n3@{ shape: rect}
+    n4@{ shape: rect}
+    n5@{ shape: rect}
+    n6@{ shape: rect}
+    n9@{ shape: db}
+    n8@{ shape: db}
+    n7@{ shape: db}
+    n1@{ shape: h-cyl}
+    n2@{ shape: h-cyl}
 
 ```
-cd my-turborepo
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
+*Gateway exposes BFF endpoints; each bounded‑context service handles its own database and publishes domain events.*
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
+---
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+## 📁 Repository Structure (Monorepo)
 
 ```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
+root/
+├─ apps/
+│  ├─ gateways/      # HTTP/WS entry points
+│  └─ services/
+│     ├─ chat/
+│     ├─ feed/
+│     └─ ...
+├─ packages/
+│  ├─ auth/          # authentication module
+│  ├─ schemas/       # validation schemas
+│  ├─ eslint-config/
+│  └─ ...
+├─ infra/
+│  ├─ docker/
+│  └─ helm/
+└─ scripts/
 ```
 
-## Useful Links
+---
 
-Learn more about the power of Turborepo:
+## 🚀 Getting Started (Local Dev)
 
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+```bash
+# 1. Clone & install deps
+pnpm install
+
+# 2. Spin up infrastructure
+cd infra/docker && docker compose up -d
+
+# 3. Start all services & frontend
+pnpm nx run-many --target=serve --all
+```
+
+Navigate to `http://localhost:8080` for the React UI.
+
+---
+
+## 🧩 Core Design Highlights
+
+1. **Event‑Driven Saga Workflows** – cross‑service transactions with JetStream.
+2. **CQRS + Outbox** – write models in Postgres, read models in Mongo for timelines.
+3. **Idempotent Handlers & DLQs** – resiliency to message replay.
+4. **Gateway BFF Pattern** – single entry‑point optimised per‑device.
+5. **Modular Monorepo** – shared tooling yet independent deploy artefacts.
+
+---
+
+## 📝 License
+
+Released under MIT License — see `LICENSE` file for details.
