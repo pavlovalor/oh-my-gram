@@ -1,0 +1,95 @@
+---
+version: "3.8"
+
+services:
+
+  minio:
+    image: minio/minio:latest
+    environment:
+      - MINIO_ROOT_USER=${BUCKET_USER}
+      - MINIO_ROOT_PASSWORD=${BUCKET_PASSWORD}
+      - MINIO_BROWSER_REDIRECT_URL=http://localhost:8082
+    ports:
+      - ${BUCKET_PORT}:9000
+      - 8082:9001
+    volumes:
+      - ./volumes/minio:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal
+
+  nats:
+    image: nats:2.10-alpine
+    ports:
+      - ${NATS_PORT}:4222  # Client connections
+      - 8222:8222  # HTTP monitoring
+    volumes:
+      - ./volumes/nats:/data
+    networks:
+      - internal
+    command: "--jetstream --http_port 8222"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8222/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  mongo:
+    image: mongo:8.0.9
+    ports:
+      - ${MONGO_PORT}:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-root}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-pwd}
+      MONGODB_QUIET: "true"
+    volumes:
+      - ./volumes/mongo:/data/db
+    networks:
+      - internal
+    command: --quiet
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  redis:
+    image: redis/redis-stack:latest
+    ports:
+      - ${REDIS_PORT}:6379  # Redis port
+      - 8001:8001  # Redis Insight UI
+    volumes:
+      - ./volumes/redis:/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  postgres:
+    image: "postgres:latest"
+    networks:
+      - internal
+    ports:
+      - ${POSTGRES_PORT}:5432
+    environment:
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: "root"
+      POSTGRES_PASSWORD: "root"
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+    volumes:
+      - ./postgres-init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./volumes/postgres:/var/lib/postgresql/data
+    command: ["postgres", "-c", "log_statement=all"]
+
+
+networks:
+  internal:
+    driver: bridge

@@ -10,6 +10,7 @@ build
 storybook-static
 dist
 volume
+volumes
 temp
 
 # Local env files
