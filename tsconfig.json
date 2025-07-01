@@ -1,0 +1,3 @@
+{
+  "extends": "@omg/typescript-config/base.json",
+}
