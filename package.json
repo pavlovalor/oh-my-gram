@@ -1,5 +1,5 @@
 {
-  "name": "oh-my-gram",
+  "name": "omg",
   "private": true,
   "scripts": {
     "build": "turbo run build",
@@ -9,9 +9,10 @@
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
-    "prettier": "^3.6.0",
     "turbo": "^2.5.4",
-    "typescript": "5.8.2"
+    "typescript": "5.8.2",
+    "@omg/eslint-config": "workspace:*",
+    "@omg/typescript-config": "workspace:*"
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {

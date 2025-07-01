@@ -1,24 +1,24 @@
 {
-  "name": "@repo/eslint-config",
+  "name": "@omg/eslint-config",
   "version": "0.0.0",
-  "type": "module",
   "private": true,
   "exports": {
-    "./base": "./base.js",
-    "./next-js": "./next.js",
-    "./react-internal": "./react-internal.js"
+    ".": "./lib/main.cjs",
+    "./library": "./lib/library.lint.cjs",
+    "./react": "./lib/react.lint.cjs",
+    "./next": "./lib/next.lint.cjs",
+    "./node": "./lib/node.lint.cjs"
   },
   "devDependencies": {
-    "@eslint/js": "^9.30.0",
-    "@next/eslint-plugin-next": "^15.3.0",
-    "eslint": "^9.30.0",
-    "eslint-config-prettier": "^10.1.1",
+    "@typescript-eslint/eslint-plugin": "^6.11.0",
+    "@typescript-eslint/parser": "^6.11.0",
+    "@vercel/style-guide": "^5.1.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-config-turbo": "^1.10.12",
     "eslint-plugin-only-warn": "^1.1.0",
-    "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-turbo": "^2.5.0",
-    "globals": "^16.2.0",
-    "typescript": "^5.8.2",
-    "typescript-eslint": "^8.35.0"
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "eslint-plugin-react-refresh": "^0.4.6"
   }
 }
