@@ -1,13 +1,13 @@
-import { Logger } from '@nestjs/common';
-import { envFileNames } from './environment.constants';
-import { type infer as Infer, AnyZodObject } from 'zod';
+import { Logger } from '@nestjs/common'
+import { envFileNames } from './environment.constants'
+import { type infer as Infer, AnyZodObject } from 'zod'
 import * as path from 'node:path'
 import * as fs from 'node:fs/promises'
-import color from 'cli-color';
+import color from 'cli-color'
 
 
 export interface ValidationOptions {
-  /**  
+  /**
    * When `true`, the helper should terminate the Node.js process on failure.<br>
    * When `false` or omitted, the caller decides how to proceed.
    */
@@ -43,40 +43,40 @@ export interface ValidationOptions {
  * ```
  */
 export function provideEnvironmentValidation<$Schema extends AnyZodObject>(envVariables: unknown, schema: $Schema) {
-  const logger = new Logger('EnvironmentValidation');
+  const logger = new Logger('EnvironmentValidation')
 
-  logger.verbose('Processing...');
-    
-  const result = schema.safeParse(envVariables);
+  logger.verbose('Processing...')
+
+  const result = schema.safeParse(envVariables)
 
   if (result.success) {
-    logger.log('Env variables match the schema');
-    return result.data as Infer<$Schema>;  // Cast is safe because success === true
+    logger.log('Env variables match the schema')
+    return result.data as Infer<$Schema>  // Cast is safe because success === true
   }
 
-  logger.error('Provided variables do not match required schema:');
+  logger.error('Provided variables do not match required schema:')
 
   for (const error of result.error.errors) {
-    const expected = 'expected' in error && error.expected as string;
-    const received = 'received' in error && error.received as string;
-    const message = error.message;
-    const path = error.path.join('.');
-        
-    const header = `${path}: ${message}`;
+    const expected = 'expected' in error && error.expected as string
+    const received = 'received' in error && error.received as string
+    const message = error.message
+    const path = error.path.join('.')
+
+    const header = `${path}: ${message}`
     const explanation = expected && received  // Pretty “expected vs received” tail, if available
-        && `. Expected ${color.yellow(expected)}${color.red(', got')} ${color.yellow(received)}`;
-    logger.error([header, explanation || ''].join(''));
+        && `. Expected ${color.yellow(expected)}${color.red(', got')} ${color.yellow(received)}`
+    logger.error([header, explanation || ''].join(''))
   }
 }
 
 
 export async function provideEnvFilePaths(): Promise<string[]> {
   const accumulator = new Array<string>()
-  
+
   for (const fileName of envFileNames) try {
     const absolutePath = path.join(process.cwd(), fileName)
     await fs.access(absolutePath, fs.constants.F_OK)
     accumulator.push(absolutePath)
-  } catch (_) {}
+  } catch (_exception: unknown) {}
   return accumulator
 }

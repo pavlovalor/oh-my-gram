@@ -1,0 +1,23 @@
+{
+  "name": "@omg/eslint-config",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./nest": "./lib/nest.config.mjs",
+    "./react": "./lib/react.config.mjs"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-only-warn": "^1.1.0",
+    "globals": "^15.0.0",
+    "typescript": "^5.2.2",
+    "typescript-eslint": "^8.0.0"
+  },
+  "dependencies": {
+    "eslint-plugin-react-refresh": "^0.4.6"
+  }
+}

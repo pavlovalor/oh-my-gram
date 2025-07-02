@@ -1,23 +1,23 @@
-import { ConfigService, ConfigModule } from '@nestjs/config';
-import { type EnvironmentModuleOptions } from './environment.types';
-import { Global, Logger, Module, type DynamicModule } from '@nestjs/common';
-import { EnvironmentService } from './environment.service';
-import { provideEnvFilePaths, provideEnvironmentValidation } from './environment.helpers';
-import * as dotenv from "dotenv";
-import * as expand from "dotenv-expand";
+import { ConfigService, ConfigModule } from '@nestjs/config'
+import { type EnvironmentModuleOptions } from './environment.types'
+import { Global, Logger, Module, type DynamicModule } from '@nestjs/common'
+import { EnvironmentService } from './environment.service'
+import { provideEnvFilePaths, provideEnvironmentValidation } from './environment.helpers'
+import * as dotenv from 'dotenv'
+import * as expand from 'dotenv-expand'
 
 
 /**
  * A type-safe wrapper around NestJS's `EnvironmentModule`, enhanced to support Zod-based
  * environment validation without needing to manually define a validate function.
- * 
+ *
  * @example
  * ```ts
  * const schema = z.object({
  *   PORT: z.coerce.number().default(3000),
  *   NODE_ENV: z.enum(['development', 'production', 'test']),
  * });
- * 
+ *
  * @Module({
  *   imports: [
  *     EnvironmentModule.forRoot({
@@ -40,7 +40,7 @@ export class EnvironmentModule extends ConfigModule {
    * @returns A dynamic module with validated configuration
    */
   static async forRoot<ValidationOptions extends Record<string, any>>(
-    { schema, envFileDirectory, ...rest }: EnvironmentModuleOptions<ValidationOptions>,
+    { schema, ...rest }: EnvironmentModuleOptions<ValidationOptions>,
   ): Promise<DynamicModule> {
     const envLocations = await provideEnvFilePaths()
     return {
@@ -49,22 +49,22 @@ export class EnvironmentModule extends ConfigModule {
       imports: [
         ConfigModule.forRoot({
           validate() {
-            const rawEnv = dotenv.config({ quiet: true, path: envLocations });
-            expand.expand(rawEnv);
+            const rawEnv = dotenv.config({ quiet: true, path: envLocations })
+            expand.expand(rawEnv)
 
-            const validEnv = provideEnvironmentValidation(process.env, schema);
+            const validEnv = provideEnvironmentValidation(process.env, schema)
             if (!validEnv) {
-              Logger.error('Failed to validate env. Terminating process');
-              process.exit(1);
+              Logger.error('Failed to validate env. Terminating process')
+              process.exit(1)
             }
 
-            return validEnv!;
+            return validEnv!
           },
           isGlobal: true,
           ...rest,
         }),
       ],
       exports: [ConfigModule, ConfigService, EnvironmentService],
-    };
+    }
   }
 }

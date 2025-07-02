@@ -7,7 +7,9 @@
   "types": "lib/index.ts",
   "scripts": {
     "build": "tsc",
-    "start:dev": "tsc --watch"
+    "start:dev": "tsc --watch",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "keywords": ["nestjs", "zod", "environment"],
   "author": "",
@@ -18,5 +20,10 @@
     "@types/cli-color": "^2.0.6",
     "cli-color": "^2.0.4",
     "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "@omg/eslint-config": "workspace:*",
+    "eslint": "^9.0.0",
+    "typescript-eslint": "^8.0.0"
   }
 }
