@@ -1,0 +1,22 @@
+{
+  "name": "@omg/environment-module",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Type-safe environment parsing module for a NestJS application",
+  "main": "dist/index.js",
+  "types": "lib/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "start:dev": "tsc --watch"
+  },
+  "keywords": ["nestjs", "zod", "environment"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@nestjs/common": "^11.1.3",
+    "@nestjs/config": "^4.0.2",
+    "@types/cli-color": "^2.0.6",
+    "cli-color": "^2.0.4",
+    "zod": "^3.25.67"
+  }
+}

@@ -3,6 +3,7 @@ version: "3.8"
 
 services:
 
+  # Infrastructural layer
   minio:
     image: minio/minio:latest
     environment:
@@ -34,7 +35,7 @@ services:
       - internal
     command: "--jetstream --http_port 8222"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8222/healthz"]
+      test: ["CMD", "nc", "-z", "localhost", "4222"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -88,6 +89,16 @@ services:
       - ./postgres-init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./volumes/postgres:/var/lib/postgresql/data
     command: ["postgres", "-c", "log_statement=all"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+
+volumes:
+  node_modules_cache:
+
 
 
 networks:

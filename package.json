@@ -9,13 +9,18 @@
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
-    "turbo": "^2.5.4",
-    "typescript": "5.8.2",
+    "@nestjs/cli": "^11.0.0",
     "@omg/eslint-config": "workspace:*",
-    "@omg/typescript-config": "workspace:*"
+    "@omg/typescript-config": "workspace:*",
+    "turbo": "^2.5.4",
+    "typescript": "5.8.2"
   },
   "packageManager": "pnpm@9.1.0",
   "engines": {
     "node": ">=18"
+  },
+  "dependencies": {
+    "dotenv": "^17.0.1",
+    "dotenv-expand": "^12.0.2"
   }
 }
