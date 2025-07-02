@@ -1,8 +1,8 @@
-import { ConfigService as NativeConfigService, ConfigModule } from '@nestjs/config';
+import { ConfigService, ConfigModule } from '@nestjs/config';
 import { type EnvironmentModuleOptions } from './environment.types';
 import { Global, Logger, Module, type DynamicModule } from '@nestjs/common';
-import { ConfigService } from './environment.service';
-import { provideEnvironmentValidation } from './environment.helpers';
+import { EnvironmentService } from './environment.service';
+import { provideEnvFilePaths, provideEnvironmentValidation } from './environment.helpers';
 import * as dotenv from "dotenv";
 import * as expand from "dotenv-expand";
 
@@ -39,31 +39,32 @@ export class EnvironmentModule extends ConfigModule {
    * @param options - The module options, including the Zod schema and standard EnvironmentModule settings
    * @returns A dynamic module with validated configuration
    */
-  static forRoot<ValidationOptions extends Record<string, any>>(
+  static async forRoot<ValidationOptions extends Record<string, any>>(
     { schema, envFileDirectory, ...rest }: EnvironmentModuleOptions<ValidationOptions>,
   ): Promise<DynamicModule> {
-    return Promise.resolve({
+    const envLocations = await provideEnvFilePaths()
+    return {
       module: EnvironmentModule,
-      providers: [NativeConfigService, ConfigService],
+      providers: [ConfigService, EnvironmentService],
       imports: [
         ConfigModule.forRoot({
-          validate(config) {
-            const rawEnv = dotenv.config({ quiet: true });
+          validate() {
+            const rawEnv = dotenv.config({ quiet: true, path: envLocations });
             expand.expand(rawEnv);
 
-            const env = provideEnvironmentValidation(config, schema);
-            if (!config) {
+            const validEnv = provideEnvironmentValidation(process.env, schema);
+            if (!validEnv) {
               Logger.error('Failed to validate env. Terminating process');
               process.exit(1);
             }
 
-            return env!;
+            return validEnv!;
           },
           isGlobal: true,
           ...rest,
         }),
       ],
-      exports: [ConfigModule, NativeConfigService, ConfigService],
-    });
+      exports: [ConfigModule, ConfigService, EnvironmentService],
+    };
   }
 }

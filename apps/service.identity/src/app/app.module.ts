@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
-import { AppController } from "./app.controller";
-import { AppService } from "./app.service";
+import { ApplicationController } from "./app.controller";
+import { ApplicationService } from "./app.service";
 import { EnvironmentModule } from "@omg/environment-module";
 import { EnvironmentSchema } from "./app.env-schema";
 
@@ -11,7 +11,7 @@ import { EnvironmentSchema } from "./app.env-schema";
       cache: true,
     }),
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [ApplicationController],
+  providers: [ApplicationService],
 })
-export class AppModule {}
+export class ApplicationModule {}

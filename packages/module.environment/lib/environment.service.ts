@@ -1,4 +1,4 @@
-import { ConfigService as NativeConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { Injectable } from '@nestjs/common';
 import { type infer as Infer } from 'zod';
 import { type AnyEnvironmentSchema } from './environment.types';
@@ -15,10 +15,10 @@ import { type AnyEnvironmentSchema } from './environment.types';
  * @template $$SchemaType - The inferred TypeScript type from the schema
  */
 @Injectable()
-export class ConfigService<
+export class EnvironmentService<
   $$Schema extends AnyEnvironmentSchema,
   $$SchemaType = Infer<$$Schema>,
-> extends NativeConfigService {
+> extends ConfigService {
   /**
    * Retrieves a configuration value by its key, with optional default value and full type inference.
    * 

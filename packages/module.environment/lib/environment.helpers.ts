@@ -1,5 +1,8 @@
 import { Logger } from '@nestjs/common';
+import { envFileNames } from './environment.constants';
 import { type infer as Infer, AnyZodObject } from 'zod';
+import * as path from 'node:path'
+import * as fs from 'node:fs/promises'
 import color from 'cli-color';
 
 
@@ -64,4 +67,16 @@ export function provideEnvironmentValidation<$Schema extends AnyZodObject>(envVa
         && `. Expected ${color.yellow(expected)}${color.red(', got')} ${color.yellow(received)}`;
     logger.error([header, explanation || ''].join(''));
   }
+}
+
+
+export async function provideEnvFilePaths(): Promise<string[]> {
+  const accumulator = new Array<string>()
+  
+  for (const fileName of envFileNames) try {
+    const absolutePath = path.join(process.cwd(), fileName)
+    await fs.access(absolutePath, fs.constants.F_OK)
+    accumulator.push(absolutePath)
+  } catch (_) {}
+  return accumulator
 }
