@@ -1,57 +1,51 @@
 import { Body, Controller, NotImplementedException, Post } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger'
-import { ZodTransformPipe } from '@omg/utils-module'
-import * as AuthSchema from '~/contracts/auth.schemas'
-import * as AuthDto from '~/contracts/auth.dto'
-
+import { AuthDto, AuthJsonSchema } from '~/contracts/auth.contracts'
 
 @Controller('auth')
 export class AuthController {
   @Post('sign-up')
   @ApiOperation({ summary: 'Sign up providing credentials' })
-  @ApiResponse({ status: 200, description: 'Session created(Ok)', type: AuthDto.TokenPairResponseDto })
-  @ApiResponse({ status: 400, description: 'Invalid payload(BadRequest)' })
-  @ApiResponse({ status: 401, description: 'Identity does not exist(Unauthorized)' })
-  @ApiResponse({ status: 423, description: 'Account restriction(Locked)' })
-  @ApiResponse({ status: 500, description: 'We screwed up(InternalServerError)' })
-  @ApiBody({ type: AuthDto.SignUpWithCredentialsRequestDto })
+  @ApiResponse({ status: 200, description: '`Ok` Session created', schema: AuthJsonSchema.TokenPairResponse })
+  @ApiResponse({ status: 400, description: '`BadRequest` Invalid payload' })
+  @ApiResponse({ status: 401, description: '`Unauthorized` Identity does not exist' })
+  @ApiResponse({ status: 423, description: '`Locked` Account restriction' })
+  @ApiResponse({ status: 500, description: '`InternalServerError` We screwed up' })
+  @ApiBody({ schema: AuthJsonSchema.SignUpWithCredentialsRequest })
   public signUp(
-    @Body(new ZodTransformPipe(AuthSchema.SignUpWithCredentialsRequestSchema))
-      _dto: AuthDto.SignUpWithCredentialsRequestDto,
-  ): Promise<AuthDto.TokenPairResponseDto> {
+    @Body() _dto: AuthDto.SignUpWithCredentialsRequest,
+  ): Promise<AuthDto.TokenPairResponse> {
     throw new NotImplementedException()
   }
 
 
   @Post('sign-in')
   @ApiOperation({ summary: 'Sign in with credentials' })
-  @ApiResponse({ status: 200, description: 'Session created(Ok)', type: AuthDto.TokenPairResponseDto })
-  @ApiResponse({ status: 400, description: 'Invalid payload(BadRequest)' })
-  @ApiResponse({ status: 401, description: 'Identity does not exist(Unauthorized)' })
-  @ApiResponse({ status: 423, description: 'Account restriction(Locked)' })
-  @ApiResponse({ status: 500, description: 'We screwed up(InternalServerError)' })
-  @ApiBody({ type: AuthDto.SignInWithCredentialsRequestDto })
+  @ApiResponse({ status: 200, description: '`Ok` Session created', schema: AuthJsonSchema.TokenPairResponse })
+  @ApiResponse({ status: 400, description: '`BadRequest` Invalid payload' })
+  @ApiResponse({ status: 401, description: '`Unauthorized` Identity does not exist' })
+  @ApiResponse({ status: 423, description: '`Locked` Account restriction' })
+  @ApiResponse({ status: 500, description: '`InternalServerError` We screwed up' })
+  @ApiBody({ schema: AuthJsonSchema.SignInWithCredentialsRequest })
   public signIn(
-    @Body(new ZodTransformPipe(AuthSchema.SignInWithCredentialsRequestSchema))
-      _dto: AuthDto.SignInWithCredentialsRequestDto,
-  ): Promise<AuthDto.TokenPairResponseDto> {
+    @Body() _dto: AuthDto.SignInWithCredentialsRequest,
+  ): Promise<AuthDto.TokenPairResponse> {
     throw new NotImplementedException()
   }
 
 
   @Post('refresh')
   @ApiOperation({ summary: 'Refresh session obtaining new token pair' })
-  @ApiResponse({ status: 200, description: 'Session refreshed(Ok)', type: AuthDto.TokenPairResponseDto })
-  @ApiResponse({ status: 400, description: 'Invalid payload(BadRequest)' })
-  @ApiResponse({ status: 401, description: 'Refresh token expired(Unauthorized)' })
-  @ApiResponse({ status: 423, description: 'Account restriction(Locked)' })
-  @ApiResponse({ status: 500, description: 'We screwed up(InternalServerError)' })
-  @ApiBody({ type: AuthDto.RefreshSessionRequestDto })
+  @ApiResponse({ status: 200, description: '`Ok` Session refreshed', schema: AuthJsonSchema.TokenPairResponse })
+  @ApiResponse({ status: 400, description: '`BadRequest` Invalid payload' })
+  @ApiResponse({ status: 401, description: '`Unauthorized` Refresh token expired' })
+  @ApiResponse({ status: 423, description: '`Locked` Account restriction' })
+  @ApiResponse({ status: 500, description: '`InternalServerError` We screwed up' })
+  @ApiBody({ schema: AuthJsonSchema.RefreshSessionRequest, required: true })
   @ApiBearerAuth()
   public refreshTokenPair(
-    @Body(new ZodTransformPipe(AuthSchema.RefreshSessionRequestSchema))
-      _dto: AuthDto.RefreshSessionRequestDto,
-  ): Promise<AuthDto.TokenPairResponseDto> {
+    @Body() _dto: AuthDto.RefreshSessionRequest,
+  ): Promise<AuthDto.TokenPairResponse> {
     throw new NotImplementedException()
   }
 }

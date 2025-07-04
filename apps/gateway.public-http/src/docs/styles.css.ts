@@ -1,4 +1,4 @@
-/* eslint-disable no-useless-escape */
+
 export default /* css */`
 @media only screen and (prefers-color-scheme: dark) {
 
@@ -135,9 +135,9 @@ export default /* css */`
 
   .swagger-ui .b--orange { border-color: #cc6e33; }
 
-  .swagger-ui .b--purple { border-color: #5e2ca5; }
+  .swagger-ui .b--purple { border-color:#7334cb; }
 
-  .swagger-ui .b--light-purple { border-color: #672caf; }
+  .swagger-ui .b--light-purple { border-color:#863ae4; }
 
   .swagger-ui .b--dark-pink { border-color: #ab2b81; }
 

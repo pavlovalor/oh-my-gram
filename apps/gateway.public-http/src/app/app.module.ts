@@ -3,6 +3,7 @@ import { ApplicationController } from './app.controller'
 import { ApplicationService } from './app.service'
 import { EnvironmentModule } from '@omg/environment-module'
 import { EnvironmentSchema } from './app.env-schema'
+import { ZodTransformPipe } from '@omg/utils-module'
 
 import { AuthController } from '~/controllers/auth.controller'
 
@@ -18,6 +19,9 @@ import { AuthController } from '~/controllers/auth.controller'
     ApplicationController,
     AuthController,
   ],
-  providers: [ApplicationService],
+  providers: [
+    ApplicationService,
+    ZodTransformPipe.asProvider(),
+  ],
 })
 export class ApplicationModule {}
