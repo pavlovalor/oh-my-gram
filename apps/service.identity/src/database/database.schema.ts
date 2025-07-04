@@ -1,0 +1,198 @@
+import { varchar, timestamp, uuid, boolean, date, foreignKey, uniqueIndex, pgSchema, inet } from 'drizzle-orm/pg-core'
+import { sql, relations, ne, gt, or } from 'drizzle-orm'
+
+
+export const coreSchema = pgSchema('core')
+export const authSchema = pgSchema('auth')
+
+
+export const certificateType = authSchema.enum('certificate_type', [
+  /* RSA */
+  'RSA-OAEP',
+  'RSA-OAEP-256',
+
+  /* Elliptic Curve (ECDH over P-256/P-384/P-521) */
+  'ECDH-ES',           // direct key derivation
+  'ECDH-ES+A128KW',    // derive, then wrap AES-128 key
+  'ECDH-ES+A192KW',
+  'ECDH-ES+A256KW'
+])
+
+export const applicationType = authSchema.enum('application_type', [
+  'web',
+  'mobile',
+  'desktop',
+])
+
+
+export const identityTable = coreSchema.table('identity', {
+  id: uuid().primaryKey().defaultRandom(),
+  createdAt: timestamp().defaultNow(),
+  updatedAt: timestamp(),
+  removedAt: timestamp(),
+  passwordHashId: uuid(),
+  phoneNumberId: uuid(),
+  emailId: uuid(),
+}, currentTable => ({
+  emailReference: foreignKey({
+    columns: [currentTable.emailId],
+    foreignColumns: [emailTable.id],
+  }),
+  phoneNumberReference: foreignKey({
+    columns: [currentTable.phoneNumberId],
+    foreignColumns: [phoneNumberTable.id],
+  }),
+  passwordHashReference: foreignKey({
+    columns: [currentTable.passwordHashId],
+    foreignColumns: [passwordHashTable.id],
+  })
+}))
+
+export const identityRelations = relations(identityTable, connect => ({
+  currentEmail: connect.one(emailTable, {
+    fields: [identityTable.emailId],
+    references: [emailTable.id],
+  }),
+  currentPhoneNumber: connect.one(phoneNumberTable, {
+    fields: [identityTable.phoneNumberId],
+    references: [phoneNumberTable.id],
+  }),
+  currentPasswordHash: connect.one(passwordHashTable, {
+    fields: [identityTable.passwordHashId],
+    references: [passwordHashTable.id],
+  }),
+  recentEmails: connect.many(emailTable),
+  recentPasswordHashes: connect.many(passwordHashTable),
+  recentPhoneNumbers: connect.many(phoneNumberTable),
+  sessions: connect.many(sessionTable),
+}))
+
+
+export const emailTable = coreSchema.table('email', {
+  id: uuid().primaryKey().defaultRandom(),
+  createdAt: timestamp().defaultNow(),
+  verifiedAt: timestamp(),
+  identityId: uuid().notNull(),
+  value: varchar({ length: 128 }).notNull(),
+}, currentTable => ({
+  identityReference: foreignKey({
+    columns: [currentTable.identityId],
+    foreignColumns: [identityTable.id],
+  }),
+}))
+
+export const emailRelations = relations(emailTable, connect => ({
+  identity: connect.one(identityTable, {
+    fields: [emailTable.identityId],
+    references: [identityTable.id],
+  }),
+}))
+
+
+export const phoneNumberTable = coreSchema.table('phone_number', {
+  id: uuid().primaryKey().defaultRandom(),
+  createdAt: timestamp().defaultNow(),
+  isVerified: boolean().default(false).notNull(),
+  identityId: uuid().notNull(),
+  value: varchar({ length: 15 }).notNull(),
+}, currentTable => ({
+  identityReference: foreignKey({
+    columns: [currentTable.identityId],
+    foreignColumns: [identityTable.id],
+  }),
+}))
+
+export const phoneNumberRelations = relations(phoneNumberTable, connect => ({
+  identity: connect.one(identityTable, {
+    fields: [phoneNumberTable.identityId],
+    references: [identityTable.id],
+  }),
+}))
+
+
+export const passwordHashTable = coreSchema.table('password', {
+  id: uuid().primaryKey().defaultRandom(),
+  createdAt: timestamp().defaultNow(),
+  expiresAt: date(),
+  identityId: uuid().notNull(),
+  value: varchar({ length: 128 }).notNull(),
+}, currentTable => ({
+  identityReference: foreignKey({
+    columns: [currentTable.identityId],
+    foreignColumns: [identityTable.id],
+  }),
+}))
+
+export const passwordHashRelations = relations(passwordHashTable, connect => ({
+  identity: connect.one(identityTable, {
+    fields: [passwordHashTable.identityId],
+    references: [identityTable.id],
+  }),
+}))
+
+
+export const deviceTable = authSchema.table('device', {
+  id: uuid().primaryKey().defaultRandom(),
+  createdAt: timestamp().defaultNow(),
+  model: varchar({ length: 64 }),
+  locale: varchar({ length: 64 }), // TODO: replace with ISO country code enum
+  operationSystem: varchar({ length: 64 }),
+  operationSystemVersion: varchar({ length: 12 }),
+  fingerprint: varchar({ length: 256 }).notNull(),
+  lastSeenAt: timestamp().defaultNow(),
+  lastIp: inet().notNull(),
+  pushToken: varchar({ length: 256 }),
+})
+
+
+export const sessionTable = authSchema.table('session', {
+  id: uuid().primaryKey().defaultRandom(),
+  createdAt: timestamp().defaultNow(),
+  updatedAt: timestamp(),
+  revokedAt: timestamp(),
+  expiresAt: timestamp().notNull(),
+  refreshToken: varchar({ length: 32 }).unique(),
+  identityId: uuid().notNull(),
+  deviceId: uuid().notNull(),
+  __isActive: boolean().notNull().default(true).generatedAlwaysAs(() => or(
+    ne(sessionTable.revokedAt, null),
+    gt(sessionTable.expiresAt, sql`NOW()`)
+  )),
+}, currentTable => ({
+  identityReference: foreignKey({
+    columns: [currentTable.identityId],
+    foreignColumns: [identityTable.id],
+  }),
+  deviceReference: foreignKey({
+    columns: [currentTable.deviceId],
+    foreignColumns: [deviceTable.id],
+  }),
+}))
+
+export const sessionRelations = relations(sessionTable, connect => ({
+  identity: connect.one(identityTable, {
+    fields: [sessionTable.identityId],
+    references: [identityTable.id],
+  }),
+  device: connect.one(deviceTable, {
+    fields: [sessionTable.deviceId],
+    references: [deviceTable.id],
+  }),
+}))
+
+
+export const applicationTable = authSchema.table('application', {
+  id: uuid().primaryKey().defaultRandom(),
+  os: varchar({ length: 64 }),
+  type: applicationType().notNull(),
+  version: varchar({ length: 16 }),
+  // TODO: add specific permissions/feature-toggles here
+})
+
+
+export const certificateTable = authSchema.table('certificate', {
+  id: uuid().primaryKey().defaultRandom(),
+  createdAt: timestamp().defaultNow(),
+  expiresAt: timestamp().notNull(),
+  type: certificateType().notNull(),
+})
