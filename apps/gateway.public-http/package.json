@@ -27,6 +27,7 @@
     "@nestjs/swagger": "^11.2.0",
     "@omg/environment-module": "workspace:*",
     "@omg/eslint-config": "workspace:*",
+    "@omg/utils-module": "workspace:*",
     "cli-color": "^2.0.4",
     "helmet": "^8.1.0",
     "nestjs-zod": "^4.3.1",
