@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ConfigService, ConfigModule } from '@nestjs/config'
 import { type EnvironmentModuleOptions } from './environment.types'
 import { Global, Logger, Module, type DynamicModule } from '@nestjs/common'

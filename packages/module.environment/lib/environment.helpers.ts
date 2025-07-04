@@ -1,6 +1,7 @@
 import { Logger } from '@nestjs/common'
 import { envFileNames } from './environment.constants'
-import { type infer as Infer, AnyZodObject } from 'zod'
+import { type AnyEnvironmentSchema } from './environment.types'
+import { type infer as Infer } from 'zod'
 import * as path from 'node:path'
 import * as fs from 'node:fs/promises'
 import color from 'cli-color'
@@ -42,7 +43,7 @@ export interface ValidationOptions {
  * // env is now typed as { PORT: number; NODE_ENV: 'development' | 'production' | 'test' }
  * ```
  */
-export function provideEnvironmentValidation<$Schema extends AnyZodObject>(envVariables: unknown, schema: $Schema) {
+export function provideEnvironmentValidation<$Schema extends AnyEnvironmentSchema>(envVariables: unknown, schema: $Schema) {
   const logger = new Logger('EnvironmentValidation')
 
   logger.verbose('Processing...')

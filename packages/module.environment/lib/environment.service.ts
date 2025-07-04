@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ConfigService } from '@nestjs/config'
 import { Injectable } from '@nestjs/common'
 import { type infer as Infer } from 'zod'
