@@ -11,12 +11,17 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
-  "keywords": ["nestjs", "zod", "utils"],
+  "keywords": [
+    "nestjs",
+    "zod",
+    "utils"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
     "@nestjs/common": "^11.1.3",
     "@nestjs/config": "^4.0.2",
+    "@nestjs/core": "^11.0.1",
     "@types/cli-color": "^2.0.6",
     "cli-color": "^2.0.4",
     "zod": "^3.25.67"
