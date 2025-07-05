@@ -24,7 +24,7 @@
  * @module drizzleSchema
  */
 import { varchar, timestamp, uuid, boolean, date, foreignKey, pgSchema, inet } from 'drizzle-orm/pg-core'
-import { sql, relations, ne, gt, or } from 'drizzle-orm'
+import { sql, relations, ne, gt, or, eq, desc } from 'drizzle-orm'
 
 
 export const coreSchema = pgSchema('core')
@@ -255,3 +255,57 @@ export const certificateTable = authSchema.table('certificate', {
   expiresAt: timestamp().notNull(),
   type: certificateType().notNull(),
 })
+
+
+/**
+ * Assembled credentials for the ease
+ * of authorization purposes
+ */
+export const identityCredentialsView = coreSchema.view('identity_credentials').as(qb => {
+  const lastPasswordHash = qb
+    .select({
+      value: passwordHashTable.value,
+      identityId: passwordHashTable.identityId,
+    })
+    .from(passwordHashTable)
+    .where(eq(passwordHashTable.identityId, identityTable.id))
+    .orderBy(desc(passwordHashTable.createdAt))
+    .limit(1)
+    .as('last_password')
+
+  const lastPhoneNumber = qb
+    .select({
+      value: phoneNumberTable.value,
+      identityId: phoneNumberTable.identityId,
+    })
+    .from(phoneNumberTable)
+    .where(eq(phoneNumberTable.identityId, identityTable.id))
+    .orderBy(desc(phoneNumberTable.createdAt))
+    .limit(1)
+    .as('last_phone_number')
+
+  const lastEmail = qb
+    .select({
+      value: emailTable.value,
+      identityId: emailTable.identityId,
+    })
+    .from(emailTable)
+    .where(eq(emailTable.identityId, identityTable.id))
+    .orderBy(desc(emailTable.createdAt))
+    .limit(1)
+    .as('last_email')
+
+  return qb
+    .select({
+      id: identityTable.id,
+      passwordHash: lastPasswordHash.value,
+      phoneNumber: lastPhoneNumber.value,
+      email: lastEmail.value,
+    })
+    .from(identityTable)
+    .leftJoin(lastPasswordHash, eq(lastPasswordHash.identityId, identityTable.id))
+    .leftJoin(lastPhoneNumber, eq(lastPhoneNumber.identityId, identityTable.id))
+    .leftJoin(lastEmail, eq(lastEmail.identityId, identityTable.id))
+    .where(ne(identityTable.removedAt, null))
+})
+

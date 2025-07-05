@@ -1,5 +1,5 @@
 {
-  "id": "e0080e7b-a2ce-4302-b946-a17ba7770467",
+  "id": "9dfc65b2-e9e1-483d-b2cc-1700391988cd",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -582,7 +582,30 @@
   "sequences": {},
   "roles": {},
   "policies": {},
-  "views": {},
+  "views": {
+    "core.identity_credentials": {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "value": {
+          "name": "value",
+          "type": "varchar(128)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "definition": "select \"core\".\"identity\".\"id\", \"last_password\".\"value\", \"last_phone_number\".\"value\", \"last_email\".\"value\" from \"core\".\"identity\" left join (select \"value\", \"identityId\" from \"core\".\"password\" where \"core\".\"password\".\"identityId\" = \"core\".\"identity\".\"id\" order by \"core\".\"password\".\"createdAt\" desc limit 1) \"last_password\" on \"last_password\".\"identityId\" = \"core\".\"identity\".\"id\" left join (select \"value\", \"identityId\" from \"core\".\"phone_number\" where \"core\".\"phone_number\".\"identityId\" = \"core\".\"identity\".\"id\" order by \"core\".\"phone_number\".\"createdAt\" desc limit 1) \"last_phone_number\" on \"last_phone_number\".\"identityId\" = \"core\".\"identity\".\"id\" left join (select \"value\", \"identityId\" from \"core\".\"email\" where \"core\".\"email\".\"identityId\" = \"core\".\"identity\".\"id\" order by \"core\".\"email\".\"createdAt\" desc limit 1) \"last_email\" on \"last_email\".\"identityId\" = \"core\".\"identity\".\"id\" where \"core\".\"identity\".\"removedAt\" <> null",
+      "name": "identity_credentials",
+      "schema": "core",
+      "isExisting": false,
+      "materialized": false
+    }
+  },
   "_meta": {
     "columns": {},
     "schemas": {},
