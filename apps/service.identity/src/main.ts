@@ -23,4 +23,3 @@ type EnvironmentServiceType = EnvironmentService<typeof EnvironmentSchema>;
   logger.log(`Listens to NATS on ${color.blue(natsUrl)}`)
   logger.log(`Available on port ${color.yellow(appPort)}`)
 }()
-

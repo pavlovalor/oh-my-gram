@@ -1,4 +1,29 @@
-import { varchar, timestamp, uuid, boolean, date, foreignKey, uniqueIndex, pgSchema, inet } from 'drizzle-orm/pg-core'
+/**
+ * Database schema definitions for the Core and Auth sub-schemas using Drizzle ORM (PostgreSQL).
+ *
+ * This file declares enums and tables, each annotated with descriptive JSDoc blocks.
+ * The `coreSchema` and `authSchema` namespaces partition tables into logical groups.
+ *
+ * Enums:
+ * - certificateType: Supported certificate key-wrapping algorithms for JSON Web Encryption (JWE).
+ * - applicationType: Client application categories (web, mobile, desktop).
+ *
+ * Tables:
+ * - identityTable
+ * - emailTable
+ * - phoneNumberTable
+ * - passwordHashTable
+ * - deviceTable
+ * - sessionTable
+ * - applicationTable
+ * - certificateTable
+ *
+ * Relationships and computed columns are defined elsewhere via Drizzle’s helpers.
+ * This file focuses solely on enum and table declarations.
+ *
+ * @module drizzleSchema
+ */
+import { varchar, timestamp, uuid, boolean, date, foreignKey, pgSchema, inet } from 'drizzle-orm/pg-core'
 import { sql, relations, ne, gt, or } from 'drizzle-orm'
 
 
@@ -6,6 +31,7 @@ export const coreSchema = pgSchema('core')
 export const authSchema = pgSchema('auth')
 
 
+/** Supported certificate key-wrapping algorithms for JWE */
 export const certificateType = authSchema.enum('certificate_type', [
   /* RSA */
   'RSA-OAEP',
@@ -18,6 +44,8 @@ export const certificateType = authSchema.enum('certificate_type', [
   'ECDH-ES+A256KW'
 ])
 
+
+/** Client application categories */
 export const applicationType = authSchema.enum('application_type', [
   'web',
   'mobile',
@@ -25,6 +53,10 @@ export const applicationType = authSchema.enum('application_type', [
 ])
 
 
+/**
+ * Stores user identities linking to email,
+ * phone, and password hash records.
+ */
 export const identityTable = coreSchema.table('identity', {
   id: uuid().primaryKey().defaultRandom(),
   createdAt: timestamp().defaultNow(),
@@ -68,6 +100,10 @@ export const identityRelations = relations(identityTable, connect => ({
 }))
 
 
+/**
+ * Stores email addresses for identities,
+ * with verification timestamp.
+ */
 export const emailTable = coreSchema.table('email', {
   id: uuid().primaryKey().defaultRandom(),
   createdAt: timestamp().defaultNow(),
@@ -89,6 +125,10 @@ export const emailRelations = relations(emailTable, connect => ({
 }))
 
 
+/**
+ * Stores phone numbers for identities,
+ * with verification flag.
+ */
 export const phoneNumberTable = coreSchema.table('phone_number', {
   id: uuid().primaryKey().defaultRandom(),
   createdAt: timestamp().defaultNow(),
@@ -110,6 +150,10 @@ export const phoneNumberRelations = relations(phoneNumberTable, connect => ({
 }))
 
 
+/**
+ * Stores history of password hash entries
+ * including expiration for identities.
+ */
 export const passwordHashTable = coreSchema.table('password', {
   id: uuid().primaryKey().defaultRandom(),
   createdAt: timestamp().defaultNow(),
@@ -131,6 +175,10 @@ export const passwordHashRelations = relations(passwordHashTable, connect => ({
 }))
 
 
+/**
+ * Tracks registered devices, metadata,
+ * and push notification tokens.
+ */
 export const deviceTable = authSchema.table('device', {
   id: uuid().primaryKey().defaultRandom(),
   createdAt: timestamp().defaultNow(),
@@ -144,7 +192,10 @@ export const deviceTable = authSchema.table('device', {
   pushToken: varchar({ length: 256 }),
 })
 
-
+/**
+ * Manages user sessions and refresh tokens,
+ * with computed "isActive" status.
+ */
 export const sessionTable = authSchema.table('session', {
   id: uuid().primaryKey().defaultRandom(),
   createdAt: timestamp().defaultNow(),
@@ -181,6 +232,10 @@ export const sessionRelations = relations(sessionTable, connect => ({
 }))
 
 
+/**
+ * Authorized client applications
+ * used with version metadata.
+ */
 export const applicationTable = authSchema.table('application', {
   id: uuid().primaryKey().defaultRandom(),
   os: varchar({ length: 64 }),
@@ -190,6 +245,10 @@ export const applicationTable = authSchema.table('application', {
 })
 
 
+/**
+ * Stores certificates used for
+ * JWT encryption key wrapping operations.
+ */
 export const certificateTable = authSchema.table('certificate', {
   id: uuid().primaryKey().defaultRandom(),
   createdAt: timestamp().defaultNow(),

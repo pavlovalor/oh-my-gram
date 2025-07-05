@@ -3,9 +3,7 @@ import { ConfigService, ConfigModule } from '@nestjs/config'
 import { type EnvironmentModuleOptions } from './environment.types'
 import { Global, Logger, Module, type DynamicModule } from '@nestjs/common'
 import { EnvironmentService } from './environment.service'
-import { provideEnvFilePaths, provideEnvironmentValidation } from './environment.helpers'
-import * as dotenv from 'dotenv'
-import * as expand from 'dotenv-expand'
+import { injectValuesFromFileIfExist, provideEnvironmentValidation, } from './environment.helpers'
 
 
 /**
@@ -43,16 +41,13 @@ export class EnvironmentModule extends ConfigModule {
   static async forRoot<ValidationOptions extends Record<string, any>>(
     { schema, ...rest }: EnvironmentModuleOptions<ValidationOptions>,
   ): Promise<DynamicModule> {
-    const envLocations = await provideEnvFilePaths()
     return {
       module: EnvironmentModule,
       providers: [ConfigService, EnvironmentService],
       imports: [
         ConfigModule.forRoot({
           validate() {
-            const rawEnv = dotenv.config({ quiet: true, path: envLocations })
-            expand.expand(rawEnv)
-
+            injectValuesFromFileIfExist()
             const validEnv = provideEnvironmentValidation(process.env, schema)
             if (!validEnv) {
               Logger.error('Failed to validate env. Terminating process')

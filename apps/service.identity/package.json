@@ -18,7 +18,11 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "postgres:studio": "drizzle-kit studio --config ./src/infrastructure/postgres/postgres.config.ts",
+    "postgres:migrate:generate": "drizzle-kit generate --config ./src/infrastructure/postgres/postgres.config.ts",
+    "postgres:migrate:push": "drizzle-kit migrate --config ./src/infrastructure/postgres/postgres.config.ts",
+    "postgres:migrate:reset": "echo 'not implemented yet'"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

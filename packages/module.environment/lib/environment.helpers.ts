@@ -2,8 +2,10 @@ import { Logger } from '@nestjs/common'
 import { envFileNames } from './environment.constants'
 import { type AnyEnvironmentSchema } from './environment.types'
 import { type infer as Infer } from 'zod'
+import * as dotenv from 'dotenv'
+import * as expand from 'dotenv-expand'
 import * as path from 'node:path'
-import * as fs from 'node:fs/promises'
+import * as fs from 'node:fs'
 import color from 'cli-color'
 
 
@@ -71,13 +73,38 @@ export function provideEnvironmentValidation<$Schema extends AnyEnvironmentSchem
 }
 
 
-export async function provideEnvFilePaths(): Promise<string[]> {
+/**
+ * Searches for environment files in the current working directory and returns
+ * an array of their absolute paths.
+ *
+ * Iterates over a predefined list of potential environment file names
+ * (`envFileNames`), checks each one for existence, and accumulates the
+ * absolute paths of those that are present.
+ *
+ * @returns An array of absolute file paths for all existing
+ *          environment files found.
+ */
+export function provideEnvFilePaths(): string[] {
   const accumulator = new Array<string>()
 
   for (const fileName of envFileNames) try {
     const absolutePath = path.join(process.cwd(), fileName)
-    await fs.access(absolutePath, fs.constants.F_OK)
+    fs.accessSync(absolutePath, fs.constants.F_OK)
     accumulator.push(absolutePath)
   } catch (_exception: unknown) {}
   return accumulator
+}
+
+/**
+ * Loads environment variables from the given list of file paths, if any exist.
+ *
+ * Uses `dotenv` to parse the files (silently ignoring errors) and
+ * `dotenv-expand` to expand any variable references within them.
+ * @see https://www.npmjs.com/package/dotenv - dotenv package documentation
+ * @param paths - An array of absolute
+ *   paths to `.env` files. Defaults to the result of
+ *   `provideEnvFilePaths()`, which auto-detects files in the CWD.
+ */
+export function injectValuesFromFileIfExist(paths = provideEnvFilePaths()): void {
+  expand.expand(dotenv.config({ quiet: true, path: paths }))
 }
