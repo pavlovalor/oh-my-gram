@@ -29,6 +29,7 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
     "@omg/environment-module": "workspace:*",
+    "@omg/postgres-module": "workspace:*",
     "@omg/eslint-config": "workspace:*",
     "cli-color": "^2.0.4",
     "reflect-metadata": "^0.2.2",

@@ -4,8 +4,10 @@ import { EnvironmentService } from '@omg/environment-module'
 import { EnvironmentSchema } from './app/app.env-schema'
 import * as color from 'cli-color'
 
+
 const logger = new Logger('BootstrapScript')
 type EnvironmentServiceType = EnvironmentService<typeof EnvironmentSchema>;
+
 
 ~ async function bootstrap() {
   logger.log('Preparing application for launch')
@@ -23,3 +25,5 @@ type EnvironmentServiceType = EnvironmentService<typeof EnvironmentSchema>;
   logger.log(`Listens to NATS on ${color.blue(natsUrl)}`)
   logger.log(`Available on port ${color.yellow(appPort)}`)
 }()
+
+
