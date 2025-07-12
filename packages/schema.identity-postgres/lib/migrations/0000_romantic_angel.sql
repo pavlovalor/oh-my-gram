@@ -74,7 +74,6 @@ CREATE TABLE "auth"."session" (
 	"refreshToken" varchar(32),
 	"identityId" uuid NOT NULL,
 	"deviceId" uuid NOT NULL,
-	"__isActive" boolean DEFAULT true GENERATED ALWAYS AS (("auth"."session"."revokedAt" <> $1 or "auth"."session"."expiresAt" > NOW())) STORED NOT NULL,
 	CONSTRAINT "session_refreshToken_unique" UNIQUE("refreshToken")
 );
 --> statement-breakpoint
@@ -86,4 +85,31 @@ ALTER TABLE "core"."password" ADD CONSTRAINT "password_identityId_identity_id_fk
 ALTER TABLE "core"."phone_number" ADD CONSTRAINT "phone_number_identityId_identity_id_fk" FOREIGN KEY ("identityId") REFERENCES "core"."identity"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "auth"."session" ADD CONSTRAINT "session_identityId_identity_id_fk" FOREIGN KEY ("identityId") REFERENCES "core"."identity"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "auth"."session" ADD CONSTRAINT "session_deviceId_device_id_fk" FOREIGN KEY ("deviceId") REFERENCES "auth"."device"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-CREATE VIEW "core"."identity_credentials" AS (select "core"."identity"."id", "last_password"."value", "last_phone_number"."value", "last_email"."value" from "core"."identity" left join (select "value", "identityId" from "core"."password" where "core"."password"."identityId" = "core"."identity"."id" order by "core"."password"."createdAt" desc limit 1) "last_password" on "last_password"."identityId" = "core"."identity"."id" left join (select "value", "identityId" from "core"."phone_number" where "core"."phone_number"."identityId" = "core"."identity"."id" order by "core"."phone_number"."createdAt" desc limit 1) "last_phone_number" on "last_phone_number"."identityId" = "core"."identity"."id" left join (select "value", "identityId" from "core"."email" where "core"."email"."identityId" = "core"."identity"."id" order by "core"."email"."createdAt" desc limit 1) "last_email" on "last_email"."identityId" = "core"."identity"."id" where "core"."identity"."removedAt" <> null);
+CREATE VIEW "core"."identity_credentials" AS (
+  SELECT
+    "core"."identity"."id",
+    "lastPassword"."value" AS "passwordHash",
+    "lastPhoneNumber"."value" AS "phoneNumber",
+    "lastEmail"."value" AS "email"
+  FROM "core"."identity"
+  
+  LEFT JOIN LATERAL (
+    select "value", "identityId" from "core"."password"
+    WHERE "core"."password"."identityId" = "core"."identity"."id"
+    order by "core"."password"."createdAt" desc limit 1
+  ) "lastPassword" on "lastPassword"."identityId" = "core"."identity"."id"
+
+  LEFT JOIN LATERAL (
+    select "value", "identityId" from "core"."phone_number"
+    WHERE "core"."phone_number"."identityId" = "core"."identity"."id"
+    order by "core"."phone_number"."createdAt" desc limit 1
+  ) "lastPhoneNumber" on "lastPhoneNumber"."identityId" = "core"."identity"."id"
+
+  LEFT JOIN LATERAL (
+    select "value", "identityId" from "core"."email"
+    WHERE "core"."email"."identityId" = "core"."identity"."id"
+    order by "core"."email"."createdAt" desc limit 1
+  ) "lastEmail" on "lastEmail"."identityId" = "core"."identity"."id"
+
+  WHERE "core"."identity"."removedAt" <> null
+);

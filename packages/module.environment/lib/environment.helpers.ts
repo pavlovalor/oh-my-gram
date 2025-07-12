@@ -106,5 +106,7 @@ export function provideEnvFilePaths(): string[] {
  *   `provideEnvFilePaths()`, which auto-detects files in the CWD.
  */
 export function injectValuesFromFileIfExist(paths = provideEnvFilePaths()): void {
-  expand.expand(dotenv.config({ quiet: true, path: paths }))
+  const logger = new Logger('EnvInjector')
+  for (const path of paths) logger.verbose(`Extracting values from ${color.blue(path)}`)
+  expand.expand(dotenv.config({ quiet: true, override: true, path: paths }))
 }

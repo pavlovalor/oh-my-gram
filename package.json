@@ -5,8 +5,9 @@
     "build": "turbo run build",
     "dev": "turbo run start:dev",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
+    "migrate": "turbo run migrate:push",
+    "check-types": "turbo run check-types",
+    "docker:dev": "docker compose -f docker/docker-compose.yml up --build --remove-orphans"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.0",

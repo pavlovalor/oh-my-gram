@@ -205,10 +205,6 @@ export const sessionTable = authSchema.table('session', {
   refreshToken: varchar({ length: 32 }).unique(),
   identityId: uuid().notNull(),
   deviceId: uuid().notNull(),
-  __isActive: boolean().notNull().default(true).generatedAlwaysAs(() => or(
-    ne(sessionTable.revokedAt, null),
-    gt(sessionTable.expiresAt, sql`NOW()`)
-  )),
 }, currentTable => ({
   identityReference: foreignKey({
     columns: [currentTable.identityId],
@@ -261,51 +257,36 @@ export const certificateTable = authSchema.table('certificate', {
  * Assembled credentials for the ease
  * of authorization purposes
  */
-export const identityCredentialsView = coreSchema.view('identity_credentials').as(qb => {
-  const lastPasswordHash = qb
-    .select({
-      value: passwordHashTable.value,
-      identityId: passwordHashTable.identityId,
-    })
-    .from(passwordHashTable)
-    .where(eq(passwordHashTable.identityId, identityTable.id))
-    .orderBy(desc(passwordHashTable.createdAt))
-    .limit(1)
-    .as('last_password')
+export const identityCredentialsView = coreSchema.view('identity_credentials', {
+  id: uuid().primaryKey(),
+  passwordHash: varchar({ length: 128 }).notNull(),
+  phoneNumber: varchar({ length: 15 }).notNull(),
+  email: varchar({ length: 128 }).notNull(),
+}).as(sql`
+  SELECT
+    ${identityTable.id},
+    "lastPassword"."value" AS "passwordHash",
+    "lastPhoneNumber"."value" AS "phoneNumber",
+    "lastEmail"."value" AS "email"
+  FROM "core"."identity"
+  
+  LEFT JOIN LATERAL (
+    select "value", "identityId" from ${passwordHashTable}
+    WHERE ${passwordHashTable.identityId} = ${identityTable.id}
+    order by ${passwordHashTable.createdAt} desc limit 1
+  ) "lastPassword" on "lastPassword"."identityId" = ${identityTable.id}
 
-  const lastPhoneNumber = qb
-    .select({
-      value: phoneNumberTable.value,
-      identityId: phoneNumberTable.identityId,
-    })
-    .from(phoneNumberTable)
-    .where(eq(phoneNumberTable.identityId, identityTable.id))
-    .orderBy(desc(phoneNumberTable.createdAt))
-    .limit(1)
-    .as('last_phone_number')
+  LEFT JOIN LATERAL (
+    select "value", "identityId" from ${phoneNumberTable}
+    WHERE ${phoneNumberTable.identityId} = ${identityTable.id}
+    order by ${phoneNumberTable.createdAt} desc limit 1
+  ) "lastPhoneNumber" on "lastPhoneNumber"."identityId" = ${identityTable.id}
 
-  const lastEmail = qb
-    .select({
-      value: emailTable.value,
-      identityId: emailTable.identityId,
-    })
-    .from(emailTable)
-    .where(eq(emailTable.identityId, identityTable.id))
-    .orderBy(desc(emailTable.createdAt))
-    .limit(1)
-    .as('last_email')
+  LEFT JOIN LATERAL (
+    select "value", "identityId" from ${emailTable}
+    WHERE ${emailTable.identityId} = ${identityTable.id}
+    order by ${emailTable.createdAt} desc limit 1
+  ) "lastEmail" on "lastEmail"."identityId" = ${identityTable.id}
 
-  return qb
-    .select({
-      id: identityTable.id,
-      passwordHash: lastPasswordHash.value,
-      phoneNumber: lastPhoneNumber.value,
-      email: lastEmail.value,
-    })
-    .from(identityTable)
-    .leftJoin(lastPasswordHash, eq(lastPasswordHash.identityId, identityTable.id))
-    .leftJoin(lastPhoneNumber, eq(lastPhoneNumber.identityId, identityTable.id))
-    .leftJoin(lastEmail, eq(lastEmail.identityId, identityTable.id))
-    .where(ne(identityTable.removedAt, null))
-})
-
+  WHERE ${identityTable.removedAt} <> null
+`)

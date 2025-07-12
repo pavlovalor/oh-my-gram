@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common'
 import { ApplicationController } from './app.controller'
 import { ApplicationService } from './app.service'
 import { EnvironmentModule, EnvironmentService } from '@omg/environment-module'
+import { IdentityDatabaseClientInjectionToken } from './app.constants'
 import { EnvironmentSchema } from './app.env-schema'
 import { PostgresModule } from '@omg/postgres-module'
-import { IdentityDatabaseClientInjectionToken } from './app.constants'
-import * as postgresSchema from '../infrastructure/postgres/postgres.schema'
+import { Schema } from '@omg/identity-postgres-schema'
 
 
 @Module({
@@ -21,7 +21,7 @@ import * as postgresSchema from '../infrastructure/postgres/postgres.schema'
       useFactory: (envService: EnvironmentService<typeof EnvironmentSchema>) => ({
         databaseUrl: envService.get('POSTGRES_URL'),
         databaseSsl: envService.get('POSTGRES_SSL'),
-        schema: postgresSchema,
+        schema: Schema,
       }),
     }),
   ],

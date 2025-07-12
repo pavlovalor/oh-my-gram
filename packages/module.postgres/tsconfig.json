@@ -11,8 +11,13 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["lib"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "lib",
+  ],
+  "exclude": [
+    "dist",
+    "node_modules"
+  ]
 }

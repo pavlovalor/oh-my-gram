@@ -1,5 +1,5 @@
 {
-  "id": "9dfc65b2-e9e1-483d-b2cc-1700391988cd",
+  "id": "f987eefa-bbcd-4aa5-8057-d493088f163c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -493,17 +493,6 @@
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
-        },
-        "__isActive": {
-          "name": "__isActive",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "generated": {
-            "as": "(\"auth\".\"session\".\"revokedAt\" <> $1 or \"auth\".\"session\".\"expiresAt\" > NOW())",
-            "type": "stored"
-          },
-          "default": true
         }
       },
       "indexes": {},
@@ -589,17 +578,28 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
-        "value": {
-          "name": "value",
+        "passwordHash": {
+          "name": "passwordHash",
+          "type": "varchar(128)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "phoneNumber": {
+          "name": "phoneNumber",
+          "type": "varchar(15)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
           "type": "varchar(128)",
           "primaryKey": false,
           "notNull": true
         }
       },
-      "definition": "select \"core\".\"identity\".\"id\", \"last_password\".\"value\", \"last_phone_number\".\"value\", \"last_email\".\"value\" from \"core\".\"identity\" left join (select \"value\", \"identityId\" from \"core\".\"password\" where \"core\".\"password\".\"identityId\" = \"core\".\"identity\".\"id\" order by \"core\".\"password\".\"createdAt\" desc limit 1) \"last_password\" on \"last_password\".\"identityId\" = \"core\".\"identity\".\"id\" left join (select \"value\", \"identityId\" from \"core\".\"phone_number\" where \"core\".\"phone_number\".\"identityId\" = \"core\".\"identity\".\"id\" order by \"core\".\"phone_number\".\"createdAt\" desc limit 1) \"last_phone_number\" on \"last_phone_number\".\"identityId\" = \"core\".\"identity\".\"id\" left join (select \"value\", \"identityId\" from \"core\".\"email\" where \"core\".\"email\".\"identityId\" = \"core\".\"identity\".\"id\" order by \"core\".\"email\".\"createdAt\" desc limit 1) \"last_email\" on \"last_email\".\"identityId\" = \"core\".\"identity\".\"id\" where \"core\".\"identity\".\"removedAt\" <> null",
+      "definition": "\n  SELECT\n    \"core\".\"identity\".\"id\",\n    \"lastPassword\".\"value\" AS \"passwordHash\",\n    \"lastPhoneNumber\".\"value\" AS \"phoneNumber\",\n    \"lastEmail\".\"value\" AS \"email\"\n  FROM \"core\".\"identity\"\n  \n  LEFT JOIN LATERAL (\n    select \"value\", \"identityId\" from \"core\".\"password\"\n    WHERE \"core\".\"password\".\"identityId\" = \"core\".\"identity\".\"id\"\n    order by \"core\".\"password\".\"createdAt\" desc limit 1\n  ) \"lastPassword\" on \"lastPassword\".\"identityId\" = \"core\".\"identity\".\"id\"\n\n  LEFT JOIN LATERAL (\n    select \"value\", \"identityId\" from \"core\".\"phone_number\"\n    WHERE \"core\".\"phone_number\".\"identityId\" = \"core\".\"identity\".\"id\"\n    order by \"core\".\"phone_number\".\"createdAt\" desc limit 1\n  ) \"lastPhoneNumber\" on \"lastPhoneNumber\".\"identityId\" = \"core\".\"identity\".\"id\"\n\n  LEFT JOIN LATERAL (\n    select \"value\", \"identityId\" from \"core\".\"email\"\n    WHERE \"core\".\"email\".\"identityId\" = \"core\".\"identity\".\"id\"\n    order by \"core\".\"email\".\"createdAt\" desc limit 1\n  ) \"lastEmail\" on \"lastEmail\".\"identityId\" = \"core\".\"identity\".\"id\"\n\n  WHERE \"core\".\"identity\".\"removedAt\" <> null\n",
       "name": "identity_credentials",
       "schema": "core",
       "isExisting": false,

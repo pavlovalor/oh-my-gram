@@ -1,4 +1,2 @@
-import '@omg/typescript-config/types'
-
 export * from './postgres.module'
-export * from './postgres.service'
+export * from './postgres.types'

@@ -1,21 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { type ModuleMetadata } from '@nestjs/common'
-import { type PostgresJsDatabase } from 'drizzle-orm/postgres-js'
-import { type ExtractTablesWithRelations, type Table } from 'drizzle-orm'
+// import { type PostgresJsDatabase } from 'drizzle-orm/postgres-js'
+// import { type ExtractTablesWithRelations, type Table } from 'drizzle-orm'
 
 export type SchemaTemplate = Record<string, unknown>
 
 export interface PostgresModuleOptions<$Schema extends SchemaTemplate = SchemaTemplate> {
   schema: $Schema,
-  logging: boolean,
+  logging?: boolean,
   databaseUrl: string,
-  databaseSsl: boolean,
+  databaseSsl?: boolean,
 }
 
-export interface PostgresModuleAsyncOptions<$Injection extends any[]> extends Pick<ModuleMetadata, 'imports'> {
-  inject: $Injection,
+export interface PostgresModuleAsyncOptions extends Pick<ModuleMetadata, 'imports'> {
+  inject: any[],
   name: string | symbol,
-  useFactory: (...args: $Injection) => MaybePromise<PostgresModuleOptions>,
+  useFactory: (...args: any[]) => PostgresModuleOptions | Promise<PostgresModuleOptions>,
 }
 
 
