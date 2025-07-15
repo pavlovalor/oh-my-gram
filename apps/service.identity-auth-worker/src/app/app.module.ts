@@ -3,6 +3,7 @@ import { EnvironmentModule, EnvironmentService } from '@omg/environment-module'
 import { ClientsModule, Transport } from '@nestjs/microservices'
 import { PostgresModule } from '@omg/postgres-module'
 import { Schema } from '@omg/identity-postgres-schema'
+import { Queue } from '@omg/message-registry'
 import { Module } from '@nestjs/common'
 
 // Local
@@ -10,7 +11,6 @@ import { IdentityDatabaseClientInjectionToken, NatsClientInjectionToken } from '
 import { ApplicationController } from './app.controller'
 import { ApplicationService } from './app.service'
 import { EnvironmentSchema } from './app.env-schema'
-import packageJson from '../../package.json'
 
 @Module({
   imports: [
@@ -36,7 +36,7 @@ import packageJson from '../../package.json'
         transport: Transport.NATS,
         options: {
           servers: [envService.get('NATS_URL')],
-          queue: packageJson.name,
+          queue: Queue.IdentityWorker,
         }
       })
     }])

@@ -44,6 +44,8 @@ export class AuthController {
   public signIn(
     @Body() dto: AuthDto.SignInWithCredentialsRequest,
   ): Promise<AuthDto.TokenPairResponse> {
+
+    console.log({ dto })
     return new SignInWithCredentialsCommand({ ...dto, login: dto.email ?? dto.phoneNumber! })
       .executeVia(this.natsClient, '@omg/identity-auth-worker')
   }

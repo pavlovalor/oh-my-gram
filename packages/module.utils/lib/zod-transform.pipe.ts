@@ -5,13 +5,17 @@ import { APP_PIPE } from '@nestjs/core'
 
 @Injectable()
 export class ZodTransformPipe implements PipeTransform {
-  constructor(private schema: ZodSchema<unknown>) {}
+  async transform(value: unknown, metadata: ArgumentMetadata) {
+    if (!metadata.metatype) return value
+    if ('schema' in metadata.metatype) {
+      const schema = metadata.metatype.schema as ZodSchema<unknown>
+      return await schema.parseAsync(value)
+        .catch(exception => {
+          throw new BadRequestException(exception)
+        })
+    }
 
-  async transform(value: unknown, _metadata: ArgumentMetadata) {
-    return await this.schema.parseAsync(value)
-      .catch(exception => {
-        throw new BadRequestException(exception)
-      })
+    return value
   }
 
   static asProvider(): Provider {

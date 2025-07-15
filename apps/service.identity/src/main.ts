@@ -7,6 +7,7 @@ import * as color from 'cli-color'
 // Local
 import { EnvironmentService } from '@omg/environment-module'
 import { EnvironmentSchema } from './app/app.env-schema'
+import { Queue } from '@omg/message-registry'
 
 
 const logger = new Logger('BootstrapScript')
@@ -28,6 +29,7 @@ type EnvironmentServiceType = EnvironmentService<typeof EnvironmentSchema>;
     transport: Transport.NATS,
     options: {
       servers: [natsUrl],
+      queue: Queue.IdentityService,
     },
   })
 
