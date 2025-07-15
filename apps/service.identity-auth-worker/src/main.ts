@@ -1,8 +1,12 @@
-import { Logger } from '@nestjs/common'
+// Global
+import { type MicroserviceOptions, Transport } from '@nestjs/microservices'
 import { NestFactory } from '@nestjs/core'
+import { Logger } from '@nestjs/common'
+import * as color from 'cli-color'
+
+// Local
 import { EnvironmentService } from '@omg/environment-module'
 import { EnvironmentSchema } from './app/app.env-schema'
-import * as color from 'cli-color'
 
 
 const logger = new Logger('BootstrapScript')
@@ -20,8 +24,16 @@ type EnvironmentServiceType = EnvironmentService<typeof EnvironmentSchema>;
 
   app.enableCors()
   app.enableShutdownHooks()
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.NATS,
+    options: {
+      servers: [natsUrl],
+    },
+  })
 
+  await app.startAllMicroservices()
   await app.listen(appPort, '0.0.0.0')
+
   logger.log(`Listens to NATS on ${color.blue(natsUrl)}`)
   logger.log(`Available on port ${color.yellow(appPort)}`)
 }()

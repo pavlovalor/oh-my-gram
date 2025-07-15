@@ -1,9 +1,22 @@
-import { Body, Controller, NotImplementedException, Post } from '@nestjs/common'
+// Global
 import { ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger'
+import { Body, Controller, Inject, Post } from '@nestjs/common'
+import { ClientProxy } from '@nestjs/microservices'
+
+// Local
+import { NatsClientInjectionToken } from '~/app/app.dit'
 import { AuthDto, AuthJsonSchema } from '~/contracts/auth.contracts'
+import {
+  SignInWithCredentialsCommand,
+  SignUpWithCredentialsCommand,
+  RefreshSessionCommand,
+} from '@omg/message-registry'
+
 
 @Controller('auth')
 export class AuthController {
+  constructor(@Inject(NatsClientInjectionToken) private readonly natsClient: ClientProxy) {}
+
   @Post('sign-up')
   @ApiOperation({ summary: 'Sign up providing credentials' })
   @ApiResponse({ status: 200, description: '`Ok` Session created', schema: AuthJsonSchema.TokenPairResponse })
@@ -12,10 +25,11 @@ export class AuthController {
   @ApiResponse({ status: 423, description: '`Locked` Account restriction' })
   @ApiResponse({ status: 500, description: '`InternalServerError` We screwed up' })
   @ApiBody({ schema: AuthJsonSchema.SignUpWithCredentialsRequest })
-  public signUp(
-    @Body() _dto: AuthDto.SignUpWithCredentialsRequest,
+  public async signUp(
+    @Body() dto: AuthDto.SignUpWithCredentialsRequest,
   ): Promise<AuthDto.TokenPairResponse> {
-    throw new NotImplementedException()
+    return new SignUpWithCredentialsCommand({ ...dto, login: dto.email ?? dto.phoneNumber! })
+      .executeVia(this.natsClient, '@omg/identity-auth-worker')
   }
 
 
@@ -28,9 +42,10 @@ export class AuthController {
   @ApiResponse({ status: 500, description: '`InternalServerError` We screwed up' })
   @ApiBody({ schema: AuthJsonSchema.SignInWithCredentialsRequest })
   public signIn(
-    @Body() _dto: AuthDto.SignInWithCredentialsRequest,
+    @Body() dto: AuthDto.SignInWithCredentialsRequest,
   ): Promise<AuthDto.TokenPairResponse> {
-    throw new NotImplementedException()
+    return new SignInWithCredentialsCommand({ ...dto, login: dto.email ?? dto.phoneNumber! })
+      .executeVia(this.natsClient, '@omg/identity-auth-worker')
   }
 
 
@@ -43,9 +58,10 @@ export class AuthController {
   @ApiResponse({ status: 500, description: '`InternalServerError` We screwed up' })
   @ApiBody({ schema: AuthJsonSchema.RefreshSessionRequest, required: true })
   @ApiBearerAuth()
-  public refreshTokenPair(
-    @Body() _dto: AuthDto.RefreshSessionRequest,
+  public refreshSession(
+    @Body() dto: AuthDto.RefreshSessionRequest,
   ): Promise<AuthDto.TokenPairResponse> {
-    throw new NotImplementedException()
+    return new RefreshSessionCommand(dto)
+      .executeVia(this.natsClient, '@omg/identity-auth-worker')
   }
 }

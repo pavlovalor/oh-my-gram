@@ -1,0 +1,34 @@
+{
+  "name": "@omg/message-registry",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Definitive dictionary of all the async messaging used within system backend",
+  "main": "dist/index.js",
+  "types": "lib/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "start:dev": "tsc --watch",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "keywords": [
+    "NATS",
+    "utils"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@nestjs/common": "^11.1.3",
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/core": "^11.0.1",
+    "@omg/utils-module": "workspace:*",
+    "cli-color": "^2.0.4",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "@omg/eslint-config": "workspace:*",
+    "@types/cli-color": "^2.0.6",
+    "eslint": "^9.0.0",
+    "typescript-eslint": "^8.0.0"
+  }
+}

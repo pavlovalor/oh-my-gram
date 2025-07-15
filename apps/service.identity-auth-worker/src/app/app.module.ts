@@ -1,12 +1,16 @@
-import { Module } from '@nestjs/common'
-import { ApplicationController } from './app.controller'
-import { ApplicationService } from './app.service'
+// Global
 import { EnvironmentModule, EnvironmentService } from '@omg/environment-module'
-import { IdentityDatabaseClientInjectionToken } from './app.constants'
-import { EnvironmentSchema } from './app.env-schema'
+import { ClientsModule, Transport } from '@nestjs/microservices'
 import { PostgresModule } from '@omg/postgres-module'
 import { Schema } from '@omg/identity-postgres-schema'
+import { Module } from '@nestjs/common'
 
+// Local
+import { IdentityDatabaseClientInjectionToken, NatsClientInjectionToken } from './app.constants'
+import { ApplicationController } from './app.controller'
+import { ApplicationService } from './app.service'
+import { EnvironmentSchema } from './app.env-schema'
+import packageJson from '../../package.json'
 
 @Module({
   imports: [
@@ -24,6 +28,18 @@ import { Schema } from '@omg/identity-postgres-schema'
         schema: Schema,
       }),
     }),
+    ClientsModule.registerAsync([{
+      name: NatsClientInjectionToken,
+      imports: [EnvironmentModule],
+      inject: [EnvironmentService],
+      useFactory: (envService: EnvironmentService<typeof EnvironmentSchema>) => ({
+        transport: Transport.NATS,
+        options: {
+          servers: [envService.get('NATS_URL')],
+          queue: packageJson.name,
+        }
+      })
+    }])
   ],
   controllers: [ApplicationController],
   providers: [ApplicationService],
