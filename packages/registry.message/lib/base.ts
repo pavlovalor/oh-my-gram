@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { ClientProxy, NatsRecordBuilder } from '@nestjs/microservices'
 import { type UUID } from 'node:crypto'
 import { firstValueFrom, catchError } from 'rxjs'
@@ -60,7 +60,8 @@ export abstract class Command<$$RequestPayload extends object, $$ResponsePayload
    * ```
    */
   public static create<$Signature extends string>(signature: $Signature) {
-    return Object.assign(Command, { pattern: `command.${signature}` })
+    const pattern = `command.${signature}` as const
+    return Object.assign(Command, { pattern, matcher: { pattern } })
   }
 
   /**
@@ -71,8 +72,8 @@ export abstract class Command<$$RequestPayload extends object, $$ResponsePayload
    * @returns Resolves with the deserialized response payload.
    * @throws If the remote handler returns an error.
    */
-  public async executeVia(client: ClientProxy, queue: string): Promise<$$ResponsePayload> {
-    const pattern = (this as any).proto.pattern as string
+  public async executeVia(client: ClientProxy, queue?: string): Promise<$$ResponsePayload> {
+    const pattern = Object.getPrototypeOf(this).constructor.pattern
     const headers = nats.headers()
 
     /**
@@ -86,7 +87,7 @@ export abstract class Command<$$RequestPayload extends object, $$ResponsePayload
       .build()
 
     const stream = client
-      .send({ pattern, queue }, record)
+      .send({ pattern }, record)
       .pipe(catchError((error: Error) => { throw error }))
 
     return firstValueFrom(stream)
@@ -120,7 +121,8 @@ export abstract class Query<$$RequestPayload extends object, $$ResponsePayload e
    * @returns A subclass of `Query` whose `pattern` static property is set.
    */
   static create<$Signature extends string>(signature: $Signature) {
-    return Object.assign(Command, { pattern: `query.${signature}` })
+    const pattern = `query.${signature}` as const
+    return Object.assign(Command, { pattern, matcher: { pattern } })
   }
 
   /**
@@ -131,8 +133,8 @@ export abstract class Query<$$RequestPayload extends object, $$ResponsePayload e
    * @returns Resolves with the deserialized response payload.
    * @throws If the remote handler returns an error.
    */
-  public async passVia(client: ClientProxy, queue: string): Promise<$$ResponsePayload> {
-    const pattern = (this as any).proto.pattern as string
+  public async passVia(client: ClientProxy, queue?: string): Promise<$$ResponsePayload> {
+    const pattern = Object.getPrototypeOf(this).constructor.pattern
     const headers = nats.headers()
 
     /**
@@ -146,7 +148,7 @@ export abstract class Query<$$RequestPayload extends object, $$ResponsePayload e
       .build()
 
     const stream = client
-      .send({ pattern, queue }, record)
+      .send({ pattern }, record)
       .pipe(catchError((error: Error) => { throw error }))
 
     return firstValueFrom(stream)
@@ -179,7 +181,12 @@ export abstract class Event<$$Payload extends object> {
    * @returns A subclass of `Event` whose `pattern` static property is set.
    */
   static create<$Signature extends string>(signature: $Signature) {
-    return Object.assign(Command, { pattern: `event.${signature}` })
+    const pattern = `event.${signature}` as const
+    return Object.assign(Command, { pattern, matcher: { pattern } })
+  }
+
+  public static get matcher() {
+    return { pattern: Object.getPrototypeOf(this).constructor.pattern }
   }
 
   /**
@@ -188,8 +195,8 @@ export abstract class Event<$$Payload extends object> {
    * @param client - The NestJS NATS client.
    * @param queue  - The JetStream consumer (or queue group) name.
    */
-  public async passVia(client: ClientProxy, queue: string): Promise<void> {
-    const pattern = (this as any).proto.pattern as string
+  public async passVia(client: ClientProxy, queue?: string): Promise<void> {
+    const pattern = Object.getPrototypeOf(this).constructor.pattern
     const headers = nats.headers()
 
     /**
@@ -203,7 +210,7 @@ export abstract class Event<$$Payload extends object> {
       .build()
 
     client
-      .send({ pattern, queue }, record)
+      .send({ pattern }, record)
       .pipe(catchError((error: Error) => { throw error }))
   }
 }

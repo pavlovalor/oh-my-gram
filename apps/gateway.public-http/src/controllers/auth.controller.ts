@@ -29,7 +29,7 @@ export class AuthController {
     @Body() dto: AuthDto.SignUpWithCredentialsRequest,
   ): Promise<AuthDto.TokenPairResponse> {
     return new SignUpWithCredentialsCommand({ ...dto, login: dto.email ?? dto.phoneNumber! })
-      .executeVia(this.natsClient, '@omg/identity-auth-worker')
+      .executeVia(this.natsClient)
   }
 
 
@@ -44,10 +44,8 @@ export class AuthController {
   public signIn(
     @Body() dto: AuthDto.SignInWithCredentialsRequest,
   ): Promise<AuthDto.TokenPairResponse> {
-
-    console.log({ dto })
     return new SignInWithCredentialsCommand({ ...dto, login: dto.email ?? dto.phoneNumber! })
-      .executeVia(this.natsClient, '@omg/identity-auth-worker')
+      .executeVia(this.natsClient)
   }
 
 
@@ -64,6 +62,6 @@ export class AuthController {
     @Body() dto: AuthDto.RefreshSessionRequest,
   ): Promise<AuthDto.TokenPairResponse> {
     return new RefreshSessionCommand(dto)
-      .executeVia(this.natsClient, '@omg/identity-auth-worker')
+      .executeVia(this.natsClient)
   }
 }

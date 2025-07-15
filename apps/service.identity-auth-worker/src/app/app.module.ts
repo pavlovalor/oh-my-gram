@@ -3,7 +3,6 @@ import { EnvironmentModule, EnvironmentService } from '@omg/environment-module'
 import { ClientsModule, Transport } from '@nestjs/microservices'
 import { PostgresModule } from '@omg/postgres-module'
 import { Schema } from '@omg/identity-postgres-schema'
-import { Queue } from '@omg/message-registry'
 import { Module } from '@nestjs/common'
 
 // Local
@@ -36,7 +35,6 @@ import { EnvironmentSchema } from './app.env-schema'
         transport: Transport.NATS,
         options: {
           servers: [envService.get('NATS_URL')],
-          queue: Queue.IdentityWorker,
         }
       })
     }])

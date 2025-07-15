@@ -30,4 +30,3 @@ export class RefreshSessionCommand extends Command.create('auth.sign-in.with-cre
   accessToken: Token,
   refreshToken: Token,
 }> {}
-

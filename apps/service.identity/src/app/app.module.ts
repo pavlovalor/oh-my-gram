@@ -10,7 +10,7 @@ import { IdentityDatabaseClientInjectionToken, NatsClientInjectionToken } from '
 import { ApplicationController } from './app.controller'
 import { ApplicationService } from './app.service'
 import { EnvironmentSchema } from './app.env-schema'
-import packageJson from '../../package.json'
+import { Queue } from '@omg/message-registry'
 
 
 @Module({
@@ -37,7 +37,7 @@ import packageJson from '../../package.json'
         transport: Transport.NATS,
         options: {
           servers: [envService.get('NATS_URL')],
-          queue: packageJson.name,
+          queue: Queue.IdentityService,
         }
       })
     }])

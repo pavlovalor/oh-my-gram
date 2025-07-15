@@ -7,6 +7,7 @@ import * as color from 'cli-color'
 // Local
 import { EnvironmentService } from '@omg/environment-module'
 import { EnvironmentSchema } from './app/app.env-schema'
+import { Queue } from '@omg/message-registry'
 
 
 const logger = new Logger('BootstrapScript')
@@ -28,6 +29,7 @@ type EnvironmentServiceType = EnvironmentService<typeof EnvironmentSchema>;
     transport: Transport.NATS,
     options: {
       servers: [natsUrl],
+      queue: Queue.IdentityWorker,
     },
   })
 
@@ -35,6 +37,7 @@ type EnvironmentServiceType = EnvironmentService<typeof EnvironmentSchema>;
   await app.listen(appPort, '0.0.0.0')
 
   logger.log(`Listens to NATS on ${color.blue(natsUrl)}`)
+  logger.log(`Queue ${color.yellow(Queue.IdentityWorker)}`)
   logger.log(`Available on port ${color.yellow(appPort)}`)
 }()
 

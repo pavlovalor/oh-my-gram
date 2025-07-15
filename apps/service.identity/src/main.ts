@@ -37,6 +37,7 @@ type EnvironmentServiceType = EnvironmentService<typeof EnvironmentSchema>;
   await app.listen(appPort, '0.0.0.0')
 
   logger.log(`Listens to NATS on ${color.blue(natsUrl)}`)
+  logger.log(`Queue ${color.yellow(Queue.IdentityService)}`)
   logger.log(`Available on port ${color.yellow(appPort)}`)
 }()
 

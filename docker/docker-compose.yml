@@ -27,7 +27,7 @@ services:
   nats:
     image: nats:2.10-alpine
     ports:
-      - ${NATS_PORT}:4222  # Client connections
+      - ${NATS_PORT:-4222}:4222  # Client connections
       - 8222:8222  # HTTP monitoring
     volumes:
       - ./volumes/nats:/data
@@ -39,6 +39,18 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+
+  nats-ui:
+    image: ghcr.io/nats-nui/nui:latest
+    ports:
+      - "${NUI_PORT:-31311}:31311"
+    volumes:
+      - ./volumes/nui:/db
+    depends_on:
+      - nats
+    networks:
+      - internal
+
 
   mongo:
     image: mongo:8.0.9
