@@ -4,7 +4,7 @@ import { Body, Controller, Inject, Post } from '@nestjs/common'
 import { ClientProxy } from '@nestjs/microservices'
 
 // Local
-import { NatsClientInjectionToken } from '~/app/app.dit'
+import { NatsClientInjectionToken } from '~/app/app.constants'
 import { AuthDto, AuthJsonSchema } from '~/contracts/auth.contracts'
 import {
   SignInWithCredentialsCommand,
