@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { type ModuleMetadata } from '@nestjs/common'
+import { drizzle } from 'drizzle-orm/postgres-js'
 // import { type PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 // import { type ExtractTablesWithRelations, type Table } from 'drizzle-orm'
 
@@ -18,7 +19,7 @@ export interface PostgresModuleAsyncOptions extends Pick<ModuleMetadata, 'import
   useFactory: (...args: any[]) => PostgresModuleOptions | Promise<PostgresModuleOptions>,
 }
 
-
+export type PostgresClient<$Schema extends Record<string, unknown>> = ReturnType<typeof drizzle<$Schema>>
 // export type Schema = typeof schema
 // export type Structure = ExtractTablesWithRelations<Schema>
 // export type DrizzleClient = PostgresJsDatabase<typeof schema>

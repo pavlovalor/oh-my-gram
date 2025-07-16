@@ -27,6 +27,7 @@
     "@omg/environment-module": "workspace:*",
     "@omg/postgres-module": "workspace:*",
     "@omg/message-registry": "workspace:*",
+    "@omg/utils-module": "workspace:*",
     "@omg/identity-postgres-schema": "workspace:*",
     "cli-color": "^2.0.4",
     "reflect-metadata": "^0.2.2",

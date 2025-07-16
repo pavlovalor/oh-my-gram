@@ -8,8 +8,10 @@ import { Module } from '@nestjs/common'
 // Local
 import { IdentityDatabaseClientInjectionToken, NatsClientInjectionToken } from './app.constants'
 import { ApplicationController } from './app.controller'
-import { ApplicationService } from './app.service'
 import { EnvironmentSchema } from './app.env-schema'
+import {
+  SignUpByCredentialsWorkflow,
+} from '../workflows'
 
 @Module({
   imports: [
@@ -40,6 +42,8 @@ import { EnvironmentSchema } from './app.env-schema'
     }])
   ],
   controllers: [ApplicationController],
-  providers: [ApplicationService],
+  providers: [
+    SignUpByCredentialsWorkflow,
+  ],
 })
 export class ApplicationModule {}
