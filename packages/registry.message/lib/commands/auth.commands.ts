@@ -1,4 +1,5 @@
-import { Command } from '../base'
+import { Queue } from '../queues'
+import { Command } from '../base/command.class'
 
 
 interface Token {
@@ -6,7 +7,21 @@ interface Token {
   ttl: number,
 }
 
-export class SignUpWithCredentialsCommand extends Command.create('auth.sign-up.with-credentials')<{
+export class SignUpWithCredentialsCommand extends Command.create(
+  'auth.sign-up.with-credentials',
+  Queue.IdentityService,
+)<{
+  login: string,
+  password: string,
+}, {
+  identityId: string,
+}> {}
+
+
+export class SignInWithCredentialsCommand extends Command.create(
+  'auth.sign-in.with-credentials',
+  Queue.AuthService,
+)<{
   login: string,
   password: string,
 }, {
@@ -15,18 +30,15 @@ export class SignUpWithCredentialsCommand extends Command.create('auth.sign-up.w
 }> {}
 
 
-export class SignInWithCredentialsCommand extends Command.create('auth.sign-in.with-credentials')<{
-  login: string,
-  password: string,
-}, {
-  accessToken: Token,
-  refreshToken: Token,
-}> {}
-
-
-export class RefreshSessionCommand extends Command.create('auth.sign-in.with-credentials')<{
+export class RefreshSessionCommand extends Command.create(
+  'auth.refresh-session',
+  Queue.AuthService,
+)<{
   refreshToken: string
 }, {
   accessToken: Token,
   refreshToken: Token,
 }> {}
+
+SignInWithCredentialsCommand.pattern === 'command.auth.sign-in.with-credentials'
+SignUpWithCredentialsCommand.pattern === 'command.auth.sign-up.with-credentials'

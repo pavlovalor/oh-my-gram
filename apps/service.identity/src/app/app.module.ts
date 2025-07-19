@@ -11,6 +11,7 @@ import { ApplicationController } from './app.controller'
 import { ApplicationService } from './app.service'
 import { EnvironmentSchema } from './app.env-schema'
 import { Queue } from '@omg/message-registry'
+import { SignUpByCredentialsWorkflow } from '~/workflows/sign-up-by-credentials.workflow'
 
 
 @Module({
@@ -19,6 +20,7 @@ import { Queue } from '@omg/message-registry'
       schema: EnvironmentSchema,
       cache: true,
     }),
+
     PostgresModule.registerAsync({
       name: IdentityDatabaseClientInjectionToken,
       imports: [EnvironmentModule],
@@ -29,6 +31,7 @@ import { Queue } from '@omg/message-registry'
         schema: Schema,
       }),
     }),
+
     ClientsModule.registerAsync([{
       name: NatsClientInjectionToken,
       imports: [EnvironmentModule],
@@ -43,6 +46,9 @@ import { Queue } from '@omg/message-registry'
     }])
   ],
   controllers: [ApplicationController],
-  providers: [ApplicationService],
+  providers: [
+    ApplicationService,
+    SignUpByCredentialsWorkflow,
+  ],
 })
 export class ApplicationModule {}

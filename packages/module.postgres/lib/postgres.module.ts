@@ -1,4 +1,4 @@
-import { type DynamicModule, Module, Provider } from '@nestjs/common'
+import { type DynamicModule, Module, type FactoryProvider } from '@nestjs/common'
 import { type PostgresModuleAsyncOptions, PostgresModuleOptions } from './postgres.types'
 import { PostgresModuleConfigInjectionToken } from './postgres.constants'
 import { drizzle } from 'drizzle-orm/postgres-js'
@@ -10,12 +10,13 @@ export class PostgresModule {
   static async registerAsync(
     options: PostgresModuleAsyncOptions
   ): Promise<DynamicModule> {
-    const config: Provider = {
+    const config: FactoryProvider = {
       provide: PostgresModuleConfigInjectionToken,
       useFactory: options.useFactory,
       inject: options.inject || []
     }
-    const client: Provider = {
+
+    const client: FactoryProvider = {
       provide: options.name,
       inject: [PostgresModuleConfigInjectionToken],
       useFactory: (config: PostgresModuleOptions) => {
@@ -41,6 +42,7 @@ export class PostgresModule {
         client,
       ],
       exports: [
+        options.name,
         PostgresModuleConfigInjectionToken,
       ]
     }

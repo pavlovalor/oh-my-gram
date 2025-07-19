@@ -1,12 +1,17 @@
-import { Controller, Get } from '@nestjs/common'
-import { ApplicationService } from './app.service'
+import { Controller } from '@nestjs/common'
+import { MessagePattern, Payload } from '@nestjs/microservices'
+import { SignUpWithCredentialsCommand } from '@omg/message-registry'
+import { SignUpByCredentialsWorkflow } from '~/workflows/sign-up-by-credentials.workflow'
+
 
 @Controller()
 export class ApplicationController {
-  constructor(private readonly appService: ApplicationService) {}
+  constructor(
+    private readonly signUpWithCredentialsWorkflow: SignUpByCredentialsWorkflow,
+  ) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello()
+  @MessagePattern(SignUpWithCredentialsCommand.matcher)
+  async signUpWithCredentials(@Payload() command: SignUpWithCredentialsCommand) {
+    return this.signUpWithCredentialsWorkflow.execute(command)
   }
 }

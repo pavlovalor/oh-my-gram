@@ -1,21 +1,28 @@
 // Global
-import { ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger'
-import { Body, Controller, Inject, Post } from '@nestjs/common'
+import { ApiOperation, ApiResponse, ApiBody, ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { BadRequestException, Body, Controller, Inject, Post } from '@nestjs/common'
 import { ClientProxy } from '@nestjs/microservices'
 
 // Local
 import { NatsClientInjectionToken } from '~/app/app.constants'
 import { AuthDto, AuthJsonSchema } from '~/contracts/auth.contracts'
+import { filterException } from '@omg/utils-module'
 import {
   SignInWithCredentialsCommand,
   SignUpWithCredentialsCommand,
   RefreshSessionCommand,
+  EmailTakenException,
+  PhoneNumberTakenException,
+  CredentialsDoNotMatchException,
 } from '@omg/message-registry'
 
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(@Inject(NatsClientInjectionToken) private readonly natsClient: ClientProxy) {}
+  constructor(
+    @Inject(NatsClientInjectionToken) private readonly natsClient: ClientProxy,
+  ) {}
 
   @Post('sign-up')
   @ApiOperation({ summary: 'Sign up providing credentials' })
@@ -28,8 +35,17 @@ export class AuthController {
   public async signUp(
     @Body() dto: AuthDto.SignUpWithCredentialsRequest,
   ): Promise<AuthDto.TokenPairResponse> {
-    return new SignUpWithCredentialsCommand({ ...dto, login: dto.email ?? dto.phoneNumber! })
+    await new SignUpWithCredentialsCommand(dto)
       .executeVia(this.natsClient)
+      .catch(filterException([EmailTakenException, PhoneNumberTakenException], exception => {
+        throw new BadRequestException(exception.getError())
+      }))
+
+    return new SignInWithCredentialsCommand(dto)
+      .executeVia(this.natsClient)
+      .catch(filterException([CredentialsDoNotMatchException], exception => {
+        throw new BadRequestException(exception.getError())
+      }))
   }
 
 
@@ -44,8 +60,12 @@ export class AuthController {
   public signIn(
     @Body() dto: AuthDto.SignInWithCredentialsRequest,
   ): Promise<AuthDto.TokenPairResponse> {
-    return new SignInWithCredentialsCommand({ ...dto, login: dto.email ?? dto.phoneNumber! })
+    // TODO: add device fingerprinting
+    return new SignInWithCredentialsCommand(dto)
       .executeVia(this.natsClient)
+      .catch(filterException([CredentialsDoNotMatchException], exception => {
+        throw new BadRequestException(exception.getError())
+      }))
   }
 
 
@@ -61,6 +81,7 @@ export class AuthController {
   public refreshSession(
     @Body() dto: AuthDto.RefreshSessionRequest,
   ): Promise<AuthDto.TokenPairResponse> {
+    // TODO: add device fingerprinting
     return new RefreshSessionCommand(dto)
       .executeVia(this.natsClient)
   }

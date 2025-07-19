@@ -11,6 +11,9 @@ importers:
       '@nestjs/microservices':
         specifier: ^11.1.3
         version: 11.1.3(@nestjs/common@11.1.3(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.3)(nats@2.29.3)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      dayjs:
+        specifier: ^1.11.13
+        version: 1.11.13
       dotenv:
         specifier: ^17.0.1
         version: 17.0.1
@@ -191,7 +194,7 @@ importers:
         specifier: ^8.20.0
         version: 8.35.1(eslint@9.30.1)(typescript@5.8.2)
 
-  apps/service.identity:
+  apps/service.auth:
     dependencies:
       '@nestjs/common':
         specifier: ^11.0.1
@@ -214,6 +217,9 @@ importers:
       '@omg/postgres-module':
         specifier: workspace:*
         version: link:../../packages/module.postgres
+      '@omg/utils-module':
+        specifier: workspace:*
+        version: link:../../packages/module.utils
       cli-color:
         specifier: ^2.0.4
         version: 2.0.4
@@ -312,7 +318,7 @@ importers:
         specifier: ^8.20.0
         version: 8.35.1(eslint@9.30.1)(typescript@5.8.2)
 
-  apps/service.identity-auth-worker:
+  apps/service.identity:
     dependencies:
       '@nestjs/common':
         specifier: ^11.0.1
@@ -471,6 +477,37 @@ importers:
         version: 8.35.1(eslint@9.30.1)(typescript@5.8.2)
 
   packages/config.typescript:
+    devDependencies:
+      '@omg/eslint-config':
+        specifier: workspace:*
+        version: link:../config.eslint
+      eslint:
+        specifier: ^9.0.0
+        version: 9.30.1
+      typescript-eslint:
+        specifier: ^8.0.0
+        version: 8.35.1(eslint@9.30.1)(typescript@5.8.3)
+
+  packages/module.auth:
+    dependencies:
+      '@nestjs/common':
+        specifier: ^11.1.3
+        version: 11.1.3(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/config':
+        specifier: ^4.0.2
+        version: 4.0.2(@nestjs/common@11.1.3(reflect-metadata@0.2.2)(rxjs@7.8.2))(rxjs@7.8.2)
+      '@omg/utils-module':
+        specifier: workspace:*
+        version: link:../module.utils
+      '@types/cli-color':
+        specifier: ^2.0.6
+        version: 2.0.6
+      cli-color:
+        specifier: ^2.0.4
+        version: 2.0.4
+      zod:
+        specifier: ^3.25.67
+        version: 3.25.67
     devDependencies:
       '@omg/eslint-config':
         specifier: workspace:*
@@ -2706,6 +2743,9 @@ packages:
   data-view-byte-offset@1.0.1:
     resolution: {integrity: sha512-BS8PfmtDGnrgYdOonGZQdLZslWIeCGFP9tpan0hi1Co2Zr2NKADsvGYA8XxuG/4UWgJ6Cjtv+YJnB6MM69QGlQ==}
     engines: {node: '>= 0.4'}
+
+  dayjs@1.11.13:
+    resolution: {integrity: sha512-oaMBel6gjolK862uaPQOVTA7q3TZhuSvuMQAAglQDOWYO9A91IrAOUJEyKVlqJlHE0vq5p5UXxzdPfMH/x6xNg==}
 
   debug@3.2.7:
     resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
@@ -7655,6 +7695,8 @@ snapshots:
       call-bound: 1.0.4
       es-errors: 1.3.0
       is-data-view: 1.0.2
+
+  dayjs@1.11.13: {}
 
   debug@3.2.7:
     dependencies:

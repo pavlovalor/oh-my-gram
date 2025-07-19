@@ -24,7 +24,7 @@
  * @module drizzleSchema
  */
 import { varchar, timestamp, uuid, boolean, date, foreignKey, pgSchema, inet } from 'drizzle-orm/pg-core'
-import { sql, relations, ne, gt, or, eq, desc } from 'drizzle-orm'
+import { sql, relations } from 'drizzle-orm'
 
 
 export const coreSchema = pgSchema('core')
@@ -62,37 +62,9 @@ export const identityTable = coreSchema.table('identity', {
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp(),
   removedAt: timestamp(),
-  passwordHashId: uuid(),
-  phoneNumberId: uuid(),
-  emailId: uuid(),
-}, currentTable => ({
-  emailReference: foreignKey({
-    columns: [currentTable.emailId],
-    foreignColumns: [emailTable.id],
-  }),
-  phoneNumberReference: foreignKey({
-    columns: [currentTable.phoneNumberId],
-    foreignColumns: [phoneNumberTable.id],
-  }),
-  passwordHashReference: foreignKey({
-    columns: [currentTable.passwordHashId],
-    foreignColumns: [passwordHashTable.id],
-  })
-}))
+})
 
 export const identityRelations = relations(identityTable, connect => ({
-  currentEmail: connect.one(emailTable, {
-    fields: [identityTable.emailId],
-    references: [emailTable.id],
-  }),
-  currentPhoneNumber: connect.one(phoneNumberTable, {
-    fields: [identityTable.phoneNumberId],
-    references: [phoneNumberTable.id],
-  }),
-  currentPasswordHash: connect.one(passwordHashTable, {
-    fields: [identityTable.passwordHashId],
-    references: [passwordHashTable.id],
-  }),
   recentEmails: connect.many(emailTable),
   recentPasswordHashes: connect.many(passwordHashTable),
   recentPhoneNumbers: connect.many(phoneNumberTable),
@@ -109,7 +81,7 @@ export const emailTable = coreSchema.table('email', {
   createdAt: timestamp().defaultNow(),
   verifiedAt: timestamp(),
   identityId: uuid().notNull(),
-  value: varchar({ length: 128 }).notNull(),
+  value: varchar({ length: 128 }).unique().notNull(),
 }, currentTable => ({
   identityReference: foreignKey({
     columns: [currentTable.identityId],
@@ -202,9 +174,9 @@ export const sessionTable = authSchema.table('session', {
   updatedAt: timestamp(),
   revokedAt: timestamp(),
   expiresAt: timestamp().notNull(),
-  refreshToken: varchar({ length: 32 }).unique(),
+  refreshToken: varchar({ length: 32 }).unique().notNull(),
   identityId: uuid().notNull(),
-  deviceId: uuid().notNull(),
+  deviceId: uuid(),
 }, currentTable => ({
   identityReference: foreignKey({
     columns: [currentTable.identityId],

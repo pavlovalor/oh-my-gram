@@ -1,5 +1,5 @@
 import { createZodDto, zodToOpenAPI } from 'nestjs-zod'
-import { object, string, number } from 'zod'
+import { object, string, number, union } from 'zod'
 
 type OpenApiSchema = ReturnType<typeof zodToOpenAPI>
 
@@ -16,8 +16,10 @@ export namespace AuthZodSchema {
 
   export const Credentials = object({
     password: string().min(8).max(64),
-    phoneNumber: string().regex(/^\+\d{7,15}$/, 'use E.164 format like +380771234567').optional(),
-    email: string().email().optional(),
+    login: union([
+      string().regex(/^\+\d{7,15}$/, 'use E.164 format like +380771234567'),
+      string().email(),
+    ]).describe('Email of phone number'),
   })
 
   export const TokenPairResponse = object({

@@ -6,6 +6,7 @@ export const EnvironmentSchema = object({
   POSTGRES_SSL: coerce.boolean().default(false),
   PATH_PREFIX: string().optional(),
   PORT: coerce.number().optional().default(8080),
+  PEPPER: string(),
 })
 
 export type EnvType = Infer<typeof EnvironmentSchema>;

@@ -36,17 +36,15 @@ CREATE TABLE "core"."email" (
 	"createdAt" timestamp DEFAULT now(),
 	"verifiedAt" timestamp,
 	"identityId" uuid NOT NULL,
-	"value" varchar(128) NOT NULL
+	"value" varchar(128) NOT NULL,
+	CONSTRAINT "email_value_unique" UNIQUE("value")
 );
 --> statement-breakpoint
 CREATE TABLE "core"."identity" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"createdAt" timestamp DEFAULT now(),
 	"updatedAt" timestamp,
-	"removedAt" timestamp,
-	"passwordHashId" uuid,
-	"phoneNumberId" uuid,
-	"emailId" uuid
+	"removedAt" timestamp
 );
 --> statement-breakpoint
 CREATE TABLE "core"."password" (
@@ -71,16 +69,13 @@ CREATE TABLE "auth"."session" (
 	"updatedAt" timestamp,
 	"revokedAt" timestamp,
 	"expiresAt" timestamp NOT NULL,
-	"refreshToken" varchar(32),
+	"refreshToken" varchar(32) NOT NULL,
 	"identityId" uuid NOT NULL,
-	"deviceId" uuid NOT NULL,
+	"deviceId" uuid,
 	CONSTRAINT "session_refreshToken_unique" UNIQUE("refreshToken")
 );
 --> statement-breakpoint
 ALTER TABLE "core"."email" ADD CONSTRAINT "email_identityId_identity_id_fk" FOREIGN KEY ("identityId") REFERENCES "core"."identity"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "core"."identity" ADD CONSTRAINT "identity_emailId_email_id_fk" FOREIGN KEY ("emailId") REFERENCES "core"."email"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "core"."identity" ADD CONSTRAINT "identity_phoneNumberId_phone_number_id_fk" FOREIGN KEY ("phoneNumberId") REFERENCES "core"."phone_number"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "core"."identity" ADD CONSTRAINT "identity_passwordHashId_password_id_fk" FOREIGN KEY ("passwordHashId") REFERENCES "core"."password"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "core"."password" ADD CONSTRAINT "password_identityId_identity_id_fk" FOREIGN KEY ("identityId") REFERENCES "core"."identity"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "core"."phone_number" ADD CONSTRAINT "phone_number_identityId_identity_id_fk" FOREIGN KEY ("identityId") REFERENCES "core"."identity"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "auth"."session" ADD CONSTRAINT "session_identityId_identity_id_fk" FOREIGN KEY ("identityId") REFERENCES "core"."identity"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint

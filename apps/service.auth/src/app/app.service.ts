@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { EnvironmentService } from '@omg/environment-module'
-import * as crypto from 'node:crypto'
 import { EnvironmentSchema } from './app.env-schema'
+import * as crypto from 'node:crypto'
+
 
 @Injectable()
 export class ApplicationService {
@@ -18,11 +19,20 @@ export class ApplicationService {
    * @returns The SHA-256 hash of the combined salt, password, and pepper.
    *  This hash is represented as a hexadecimal string.
    */
-  generatePasswordHash(password: string): string {
+  public generatePasswordHash(password: string): string {
     const pepper = this.environmentService.get('PEPPER')
 
-    return crypto.createHash('sha256')
+    return crypto
+      .createHash('sha256')
       .update(ApplicationService.salt + password + pepper)
       .digest('hex')
+  }
+
+
+  public generateRefreshToken(length: number): string {
+    return crypto
+      .randomBytes(length * 2)
+      .toString('hex')
+      .slice(0, length)
   }
 }

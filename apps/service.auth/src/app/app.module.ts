@@ -10,8 +10,11 @@ import { IdentityDatabaseClientInjectionToken, NatsClientInjectionToken } from '
 import { ApplicationController } from './app.controller'
 import { EnvironmentSchema } from './app.env-schema'
 import {
-  SignUpByCredentialsWorkflow,
+  SignInByCredentialsWorkflow,
+  RefreshSessionWorkflow
 } from '../workflows'
+import { ApplicationService } from './app.service'
+
 
 @Module({
   imports: [
@@ -19,6 +22,7 @@ import {
       schema: EnvironmentSchema,
       cache: true,
     }),
+
     PostgresModule.registerAsync({
       name: IdentityDatabaseClientInjectionToken,
       imports: [EnvironmentModule],
@@ -29,6 +33,7 @@ import {
         schema: Schema,
       }),
     }),
+
     ClientsModule.registerAsync([{
       name: NatsClientInjectionToken,
       imports: [EnvironmentModule],
@@ -39,11 +44,13 @@ import {
           servers: [envService.get('NATS_URL')],
         }
       })
-    }])
+    }]),
   ],
   controllers: [ApplicationController],
   providers: [
-    SignUpByCredentialsWorkflow,
+    ApplicationService,
+    SignInByCredentialsWorkflow,
+    RefreshSessionWorkflow,
   ],
 })
 export class ApplicationModule {}

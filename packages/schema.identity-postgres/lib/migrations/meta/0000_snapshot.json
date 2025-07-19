@@ -1,5 +1,5 @@
 {
-  "id": "f987eefa-bbcd-4aa5-8057-d493088f163c",
+  "id": "39a6052b-dc5f-4d4a-a6ef-ff298a63f561",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -214,7 +214,15 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "email_value_unique": {
+          "name": "email_value_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "value"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -248,71 +256,10 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
-        },
-        "passwordHashId": {
-          "name": "passwordHashId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "phoneNumberId": {
-          "name": "phoneNumberId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "emailId": {
-          "name": "emailId",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "identity_emailId_email_id_fk": {
-          "name": "identity_emailId_email_id_fk",
-          "tableFrom": "identity",
-          "tableTo": "email",
-          "schemaTo": "core",
-          "columnsFrom": [
-            "emailId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "identity_phoneNumberId_phone_number_id_fk": {
-          "name": "identity_phoneNumberId_phone_number_id_fk",
-          "tableFrom": "identity",
-          "tableTo": "phone_number",
-          "schemaTo": "core",
-          "columnsFrom": [
-            "phoneNumberId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "identity_passwordHashId_password_id_fk": {
-          "name": "identity_passwordHashId_password_id_fk",
-          "tableFrom": "identity",
-          "tableTo": "password",
-          "schemaTo": "core",
-          "columnsFrom": [
-            "passwordHashId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -480,7 +427,7 @@
           "name": "refreshToken",
           "type": "varchar(32)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "identityId": {
           "name": "identityId",
@@ -492,7 +439,7 @@
           "name": "deviceId",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         }
       },
       "indexes": {},
