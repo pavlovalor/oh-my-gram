@@ -26,11 +26,13 @@
     "node": ">=18"
   },
   "dependencies": {
+    "@liaoliaots/nestjs-redis": "^10.0.0",
     "@nestjs/microservices": "^11.1.3",
     "dayjs": "^1.11.13",
     "dotenv": "^17.0.1",
     "dotenv-expand": "^12.0.2",
     "drizzle-orm": "^0.44.2",
+    "ioredis": "^5.6.1",
     "nats": "^2.29.3",
     "nestjs-zod": "^4.3.1",
     "pg": "^8.16.3",

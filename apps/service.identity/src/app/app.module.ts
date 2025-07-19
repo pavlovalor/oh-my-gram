@@ -2,6 +2,7 @@
 import { EnvironmentModule, EnvironmentService } from '@omg/environment-module'
 import { ClientsModule, Transport } from '@nestjs/microservices'
 import { PostgresModule } from '@omg/postgres-module'
+import { RedisModule } from '@liaoliaots/nestjs-redis'
 import { Schema } from '@omg/identity-postgres-schema'
 import { Module } from '@nestjs/common'
 
@@ -19,6 +20,15 @@ import { SignUpByCredentialsWorkflow } from '~/workflows/sign-up-by-credentials.
     EnvironmentModule.forRoot({
       schema: EnvironmentSchema,
       cache: true,
+    }),
+
+    RedisModule.forRootAsync({
+      imports: [EnvironmentModule],
+      inject: [EnvironmentService],
+      useFactory: (envService: EnvironmentService<typeof EnvironmentSchema>) => ({
+        config: { url: envService.get('REDIS_URL') },
+        readyLog: true,
+      })
     }),
 
     PostgresModule.registerAsync({

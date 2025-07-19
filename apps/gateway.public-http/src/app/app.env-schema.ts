@@ -27,6 +27,9 @@ export const EnvironmentSchema = object({
   NATS_URL: string()
     .describe('NATS communication URL'),
 
+  REDIS_URL: string()
+    .describe('Redis communication URL'),
+
   BASE_URL: string()
     .optional()
     .describe('Contains app base URL'),

@@ -1,5 +1,6 @@
 // Global
 import { ClientsModule, Transport } from '@nestjs/microservices'
+import { RedisModule } from '@liaoliaots/nestjs-redis'
 import { Module } from '@nestjs/common'
 
 // Local
@@ -18,6 +19,16 @@ import { AuthController } from '~/controllers/auth.controller'
       schema: EnvironmentSchema,
       cache: true,
     }),
+
+    RedisModule.forRootAsync({
+      imports: [EnvironmentModule],
+      inject: [EnvironmentService],
+      useFactory: (envService: EnvironmentService<typeof EnvironmentSchema>) => ({
+        config: { url: envService.get('REDIS_URL') },
+        readyLog: true,
+      })
+    }),
+
     ClientsModule.registerAsync([{
       name: NatsClientInjectionToken,
       imports: [EnvironmentModule],
