@@ -1,6 +1,5 @@
 import { type ClientProxy, NatsRecordBuilder, RpcException } from '@nestjs/microservices'
 import { generateNamespacedUuid } from '@omg/utils-module'
-import { WorkflowException } from './workflow-exception.class'
 import { ExceptionRegistry } from '../exceptions/registry'
 import { catchError, firstValueFrom } from 'rxjs'
 import { type MessageMetadata } from '../types'

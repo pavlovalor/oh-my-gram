@@ -27,3 +27,10 @@ export class CredentialsDoNotMatchException extends WorkflowException {
   } satisfies WorkflowExceptionPredicates
 }
 
+export class NoSessionFoundException extends WorkflowException {
+  static readonly predicates = {
+    message: 'Such session does not exist',
+    reason: 'Potential mismatch of parameters',
+    code: 100102,
+  } satisfies WorkflowExceptionPredicates
+}

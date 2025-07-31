@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { type Command } from './base/command.class'
 import { type Query } from './base/query.class'
-import { type UUID as Uuid } from 'node:crypto'
 import { type NamespacedUuid } from '@omg/utils-module'
 
 
 /** Metadata that accompanies every message sent over NATS */
 export interface MessageMetadata {
   /** Who issued the message */
-  issuerId: Uuid,
+  identityId: string,
   /** ID used to correlate this message with others in a workflow */
   correlationId: NamespacedUuid<'flow'>;
   /** ID of the message or operation that caused this one */
