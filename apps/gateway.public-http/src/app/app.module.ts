@@ -11,6 +11,7 @@ import { ApplicationService } from './app.service'
 import { EnvironmentSchema } from './app.env-schema'
 import { ZodTransformPipe } from '@omg/utils-module'
 import { AuthController } from '~/controllers/auth.controller'
+import { AuthzModule } from '@omg/authz-module'
 
 
 @Module({
@@ -26,7 +27,7 @@ import { AuthController } from '~/controllers/auth.controller'
       useFactory: (envService: EnvironmentService<typeof EnvironmentSchema>) => ({
         config: { url: envService.get('REDIS_URL') },
         readyLog: true,
-      })
+      }),
     }),
 
     ClientsModule.registerAsync([{
@@ -38,8 +39,17 @@ import { AuthController } from '~/controllers/auth.controller'
         options: {
           servers: [envService.get('NATS_URL')],
         }
+      }),
+    }]),
+
+    AuthzModule.registerAsync({
+      interceptHttp: true,
+      imports: [EnvironmentModule],
+      inject: [EnvironmentService],
+      useFactory: (envService: EnvironmentService<typeof EnvironmentSchema>) => ({
+        pepper: envService.get('PEPPER'),
       })
-    }])
+    })
   ],
   controllers: [
     ApplicationController,

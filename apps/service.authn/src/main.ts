@@ -1,4 +1,5 @@
 // Global
+import './extensions'
 import { type MicroserviceOptions, Transport } from '@nestjs/microservices'
 import { NestFactory } from '@nestjs/core'
 import { Logger } from '@nestjs/common'

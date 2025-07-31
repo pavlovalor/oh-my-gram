@@ -15,6 +15,7 @@ import {
   RefreshSessionWorkflow
 } from '../workflows'
 import { ApplicationService } from './app.service'
+import { AuthzModule } from '@omg/authz-module'
 
 
 @Module({
@@ -55,6 +56,14 @@ import { ApplicationService } from './app.service'
         }
       })
     }]),
+
+    AuthzModule.registerAsync({
+      imports: [EnvironmentModule],
+      inject: [EnvironmentService],
+      useFactory: (envService: EnvironmentService<typeof EnvironmentSchema>) => ({
+        pepper: envService.get('PEPPER'),
+      })
+    }),
   ],
   controllers: [ApplicationController],
   providers: [

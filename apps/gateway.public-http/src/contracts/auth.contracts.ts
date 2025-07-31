@@ -5,7 +5,7 @@ type OpenApiSchema = ReturnType<typeof zodToOpenAPI>
 
 export namespace AuthZodSchema {
   export const RefreshToken = object({
-    value: string().length(64),
+    value: string().length(32),
     ttl: number().int().positive(),
   })
 

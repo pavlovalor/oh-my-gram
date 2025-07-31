@@ -24,6 +24,7 @@ export class SignInWithCredentialsCommand extends Command.create(
 )<{
   login: string,
   password: string,
+  // TODO: realm
 }, {
   accessToken: Token,
   refreshToken: Token,
@@ -39,6 +40,3 @@ export class RefreshSessionCommand extends Command.create(
   accessToken: Token,
   refreshToken: Token,
 }> {}
-
-SignInWithCredentialsCommand.pattern === 'command.auth.sign-in.with-credentials'
-SignUpWithCredentialsCommand.pattern === 'command.auth.sign-up.with-credentials'

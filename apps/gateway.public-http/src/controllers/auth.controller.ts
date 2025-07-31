@@ -7,6 +7,7 @@ import { ClientProxy } from '@nestjs/microservices'
 import { NatsClientInjectionToken } from '~/app/app.constants'
 import { AuthDto, AuthJsonSchema } from '~/contracts/auth.contracts'
 import { filterException } from '@omg/utils-module'
+import { AuthzCheck, AuthzData, AuthzPayload } from '@omg/authz-module'
 import {
   SignInWithCredentialsCommand,
   SignUpWithCredentialsCommand,
@@ -70,6 +71,7 @@ export class AuthController {
 
 
   @Post('refresh')
+  @AuthzCheck({ allowExpiredToken: true })
   @ApiOperation({ summary: 'Refresh session obtaining new token pair' })
   @ApiResponse({ status: 200, description: '`Ok` Session refreshed', schema: AuthJsonSchema.TokenPairResponse })
   @ApiResponse({ status: 400, description: '`BadRequest` Invalid payload' })
@@ -80,7 +82,10 @@ export class AuthController {
   @ApiBearerAuth()
   public refreshSession(
     @Body() dto: AuthDto.RefreshSessionRequest,
+    @AuthzData() issuer: AuthzPayload,
   ): Promise<AuthDto.TokenPairResponse> {
+
+    console.log(issuer)
     // TODO: add device fingerprinting
     return new RefreshSessionCommand(dto)
       .executeVia(this.natsClient)

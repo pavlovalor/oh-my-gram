@@ -21,14 +21,13 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@nestjs/common": "^11.0.1",
-    "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.2.0",
     "@omg/environment-module": "workspace:*",
     "@omg/eslint-config": "workspace:*",
     "@omg/message-registry": "workspace:*",
     "@omg/utils-module": "workspace:*",
+    "@omg/authz-module": "workspace:*",
     "cli-color": "^2.0.4",
     "helmet": "^8.1.0",
     "reflect-metadata": "^0.2.2",
@@ -44,7 +43,6 @@
     "@swc/cli": "^0.6.0",
     "@swc/core": "^1.10.7",
     "@types/cli-color": "^2.0.6",
-    "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.10.7",
     "@types/supertest": "^6.0.2",

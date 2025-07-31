@@ -31,20 +31,6 @@ export const coreSchema = pgSchema('core')
 export const authSchema = pgSchema('auth')
 
 
-/** Supported certificate key-wrapping algorithms for JWE */
-export const certificateType = authSchema.enum('certificate_type', [
-  /* RSA */
-  'RSA-OAEP',
-  'RSA-OAEP-256',
-
-  /* Elliptic Curve (ECDH over P-256/P-384/P-521) */
-  'ECDH-ES',           // direct key derivation
-  'ECDH-ES+A128KW',    // derive, then wrap AES-128 key
-  'ECDH-ES+A192KW',
-  'ECDH-ES+A256KW'
-])
-
-
 /** Client application categories */
 export const applicationType = authSchema.enum('application_type', [
   'web',
@@ -170,7 +156,7 @@ export const deviceTable = authSchema.table('device', {
  */
 export const sessionTable = authSchema.table('session', {
   id: uuid().primaryKey().defaultRandom(),
-  createdAt: timestamp().defaultNow(),
+  createdAt: timestamp().notNull().defaultNow(),
   updatedAt: timestamp(),
   revokedAt: timestamp(),
   expiresAt: timestamp().notNull(),
@@ -214,18 +200,6 @@ export const applicationTable = authSchema.table('application', {
 
 
 /**
- * Stores certificates used for
- * JWT encryption key wrapping operations.
- */
-export const certificateTable = authSchema.table('certificate', {
-  id: uuid().primaryKey().defaultRandom(),
-  createdAt: timestamp().defaultNow(),
-  expiresAt: timestamp().notNull(),
-  type: certificateType().notNull(),
-})
-
-
-/**
  * Assembled credentials for the ease
  * of authorization purposes
  */
@@ -243,22 +217,22 @@ export const identityCredentialsView = coreSchema.view('identity_credentials', {
   FROM "core"."identity"
   
   LEFT JOIN LATERAL (
-    select "value", "identityId" from ${passwordHashTable}
+    SELECT "value", "identityId" FROM ${passwordHashTable}
     WHERE ${passwordHashTable.identityId} = ${identityTable.id}
-    order by ${passwordHashTable.createdAt} desc limit 1
-  ) "lastPassword" on "lastPassword"."identityId" = ${identityTable.id}
+    ORDER BY ${passwordHashTable.createdAt} DESC LIMIT 1
+  ) "lastPassword" ON "lastPassword"."identityId" = ${identityTable.id}
 
   LEFT JOIN LATERAL (
-    select "value", "identityId" from ${phoneNumberTable}
+    SELECT "value", "identityId" FROM ${phoneNumberTable}
     WHERE ${phoneNumberTable.identityId} = ${identityTable.id}
-    order by ${phoneNumberTable.createdAt} desc limit 1
-  ) "lastPhoneNumber" on "lastPhoneNumber"."identityId" = ${identityTable.id}
+    ORDER BY ${phoneNumberTable.createdAt} DESC LIMIT 1
+  ) "lastPhoneNumber" ON "lastPhoneNumber"."identityId" = ${identityTable.id}
 
   LEFT JOIN LATERAL (
-    select "value", "identityId" from ${emailTable}
+    SELECT "value", "identityId" FROM ${emailTable}
     WHERE ${emailTable.identityId} = ${identityTable.id}
-    order by ${emailTable.createdAt} desc limit 1
-  ) "lastEmail" on "lastEmail"."identityId" = ${identityTable.id}
+    ORDER BY ${emailTable.createdAt} DESC LIMIT 1
+  ) "lastEmail" ON "lastEmail"."identityId" = ${identityTable.id}
 
-  WHERE ${identityTable.removedAt} <> null
+  WHERE ${identityTable.removedAt} IS NULL
 `)

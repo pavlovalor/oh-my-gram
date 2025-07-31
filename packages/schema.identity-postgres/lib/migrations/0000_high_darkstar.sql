@@ -3,19 +3,11 @@ CREATE SCHEMA "auth";
 CREATE SCHEMA "core";
 --> statement-breakpoint
 CREATE TYPE "auth"."application_type" AS ENUM('web', 'mobile', 'desktop');--> statement-breakpoint
-CREATE TYPE "auth"."certificate_type" AS ENUM('RSA-OAEP', 'RSA-OAEP-256', 'ECDH-ES', 'ECDH-ES+A128KW', 'ECDH-ES+A192KW', 'ECDH-ES+A256KW');--> statement-breakpoint
 CREATE TABLE "auth"."application" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"os" varchar(64),
 	"type" "auth"."application_type" NOT NULL,
 	"version" varchar(16)
-);
---> statement-breakpoint
-CREATE TABLE "auth"."certificate" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"createdAt" timestamp DEFAULT now(),
-	"expiresAt" timestamp NOT NULL,
-	"type" "auth"."certificate_type" NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "auth"."device" (
@@ -65,7 +57,7 @@ CREATE TABLE "core"."phone_number" (
 --> statement-breakpoint
 CREATE TABLE "auth"."session" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"createdAt" timestamp DEFAULT now(),
+	"createdAt" timestamp DEFAULT now() NOT NULL,
 	"updatedAt" timestamp,
 	"revokedAt" timestamp,
 	"expiresAt" timestamp NOT NULL,
@@ -89,22 +81,22 @@ CREATE VIEW "core"."identity_credentials" AS (
   FROM "core"."identity"
   
   LEFT JOIN LATERAL (
-    select "value", "identityId" from "core"."password"
+    SELECT "value", "identityId" FROM "core"."password"
     WHERE "core"."password"."identityId" = "core"."identity"."id"
-    order by "core"."password"."createdAt" desc limit 1
-  ) "lastPassword" on "lastPassword"."identityId" = "core"."identity"."id"
+    ORDER BY "core"."password"."createdAt" DESC LIMIT 1
+  ) "lastPassword" ON "lastPassword"."identityId" = "core"."identity"."id"
 
   LEFT JOIN LATERAL (
-    select "value", "identityId" from "core"."phone_number"
+    SELECT "value", "identityId" FROM "core"."phone_number"
     WHERE "core"."phone_number"."identityId" = "core"."identity"."id"
-    order by "core"."phone_number"."createdAt" desc limit 1
-  ) "lastPhoneNumber" on "lastPhoneNumber"."identityId" = "core"."identity"."id"
+    ORDER BY "core"."phone_number"."createdAt" DESC LIMIT 1
+  ) "lastPhoneNumber" ON "lastPhoneNumber"."identityId" = "core"."identity"."id"
 
   LEFT JOIN LATERAL (
-    select "value", "identityId" from "core"."email"
+    SELECT "value", "identityId" FROM "core"."email"
     WHERE "core"."email"."identityId" = "core"."identity"."id"
-    order by "core"."email"."createdAt" desc limit 1
-  ) "lastEmail" on "lastEmail"."identityId" = "core"."identity"."id"
+    ORDER BY "core"."email"."createdAt" DESC LIMIT 1
+  ) "lastEmail" ON "lastEmail"."identityId" = "core"."identity"."id"
 
-  WHERE "core"."identity"."removedAt" <> null
+  WHERE "core"."identity"."removedAt" IS NULL
 );

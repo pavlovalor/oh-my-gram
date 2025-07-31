@@ -1,5 +1,5 @@
 {
-  "id": "39a6052b-dc5f-4d4a-a6ef-ff298a63f561",
+  "id": "0e6725ed-c51f-4f33-8777-57c3e9eb4a6d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -33,46 +33,6 @@
           "type": "varchar(16)",
           "primaryKey": false,
           "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "auth.certificate": {
-      "name": "certificate",
-      "schema": "auth",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "expiresAt": {
-          "name": "expiresAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "type": {
-          "name": "type",
-          "type": "certificate_type",
-          "typeSchema": "auth",
-          "primaryKey": false,
-          "notNull": true
         }
       },
       "indexes": {},
@@ -402,7 +362,7 @@
           "name": "createdAt",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "now()"
         },
         "updatedAt": {
@@ -497,18 +457,6 @@
         "mobile",
         "desktop"
       ]
-    },
-    "auth.certificate_type": {
-      "name": "certificate_type",
-      "schema": "auth",
-      "values": [
-        "RSA-OAEP",
-        "RSA-OAEP-256",
-        "ECDH-ES",
-        "ECDH-ES+A128KW",
-        "ECDH-ES+A192KW",
-        "ECDH-ES+A256KW"
-      ]
     }
   },
   "schemas": {
@@ -546,7 +494,7 @@
           "notNull": true
         }
       },
-      "definition": "\n  SELECT\n    \"core\".\"identity\".\"id\",\n    \"lastPassword\".\"value\" AS \"passwordHash\",\n    \"lastPhoneNumber\".\"value\" AS \"phoneNumber\",\n    \"lastEmail\".\"value\" AS \"email\"\n  FROM \"core\".\"identity\"\n  \n  LEFT JOIN LATERAL (\n    select \"value\", \"identityId\" from \"core\".\"password\"\n    WHERE \"core\".\"password\".\"identityId\" = \"core\".\"identity\".\"id\"\n    order by \"core\".\"password\".\"createdAt\" desc limit 1\n  ) \"lastPassword\" on \"lastPassword\".\"identityId\" = \"core\".\"identity\".\"id\"\n\n  LEFT JOIN LATERAL (\n    select \"value\", \"identityId\" from \"core\".\"phone_number\"\n    WHERE \"core\".\"phone_number\".\"identityId\" = \"core\".\"identity\".\"id\"\n    order by \"core\".\"phone_number\".\"createdAt\" desc limit 1\n  ) \"lastPhoneNumber\" on \"lastPhoneNumber\".\"identityId\" = \"core\".\"identity\".\"id\"\n\n  LEFT JOIN LATERAL (\n    select \"value\", \"identityId\" from \"core\".\"email\"\n    WHERE \"core\".\"email\".\"identityId\" = \"core\".\"identity\".\"id\"\n    order by \"core\".\"email\".\"createdAt\" desc limit 1\n  ) \"lastEmail\" on \"lastEmail\".\"identityId\" = \"core\".\"identity\".\"id\"\n\n  WHERE \"core\".\"identity\".\"removedAt\" <> null\n",
+      "definition": "\n  SELECT\n    \"core\".\"identity\".\"id\",\n    \"lastPassword\".\"value\" AS \"passwordHash\",\n    \"lastPhoneNumber\".\"value\" AS \"phoneNumber\",\n    \"lastEmail\".\"value\" AS \"email\"\n  FROM \"core\".\"identity\"\n  \n  LEFT JOIN LATERAL (\n    SELECT \"value\", \"identityId\" FROM \"core\".\"password\"\n    WHERE \"core\".\"password\".\"identityId\" = \"core\".\"identity\".\"id\"\n    ORDER BY \"core\".\"password\".\"createdAt\" DESC LIMIT 1\n  ) \"lastPassword\" ON \"lastPassword\".\"identityId\" = \"core\".\"identity\".\"id\"\n\n  LEFT JOIN LATERAL (\n    SELECT \"value\", \"identityId\" FROM \"core\".\"phone_number\"\n    WHERE \"core\".\"phone_number\".\"identityId\" = \"core\".\"identity\".\"id\"\n    ORDER BY \"core\".\"phone_number\".\"createdAt\" DESC LIMIT 1\n  ) \"lastPhoneNumber\" ON \"lastPhoneNumber\".\"identityId\" = \"core\".\"identity\".\"id\"\n\n  LEFT JOIN LATERAL (\n    SELECT \"value\", \"identityId\" FROM \"core\".\"email\"\n    WHERE \"core\".\"email\".\"identityId\" = \"core\".\"identity\".\"id\"\n    ORDER BY \"core\".\"email\".\"createdAt\" DESC LIMIT 1\n  ) \"lastEmail\" ON \"lastEmail\".\"identityId\" = \"core\".\"identity\".\"id\"\n\n  WHERE \"core\".\"identity\".\"removedAt\" IS NULL\n",
       "name": "identity_credentials",
       "schema": "core",
       "isExisting": false,

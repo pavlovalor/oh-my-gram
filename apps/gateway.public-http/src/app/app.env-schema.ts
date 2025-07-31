@@ -16,6 +16,9 @@ export const EnvironmentSchema = object({
     .optional()
     .default('localhost'),
 
+  PEPPER: string()
+    .describe('Used for encryption related operations ensures cohesiveness'),
+
   SSL: coerce.boolean()
     .optional()
     .default(false),
