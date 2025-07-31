@@ -21,15 +21,19 @@ export class AuthzGuard implements CanActivate {
     this.logger.verbose('Checking')
 
     const request = context.switchToHttp().getRequest()
-    const options = this.reflector.get(AuthzCheck, context.getHandler()) ?? {}
+    const options = this.reflector.get(AuthzCheck, context.getHandler())
     const tokenData = request[AuthzTokenDataKey] as AccessTokenPayload | null
     const isExpiredToken = tokenData && dayjs(tokenData.eat * 1000).isBefore()
     const isAnonymous = !tokenData
 
+    if (!options) {
+      this.logger.verbose('No requirements found')
+      return true
+    }
+
     this.logger.verbose('Applying guard rules')
 
     if (isAnonymous && !options.allowAnonymous) {
-      console.log(isAnonymous, options.allowAnonymous)
       this.logger.warn('Anonymous users not allowed')
       return false
     }
