@@ -24,7 +24,7 @@ export class SignInByCredentialsWorkflow implements WorkflowHandler<SignInWithCr
   ) {}
 
 
-  async execute({ payload, meta }: SignInWithCredentialsCommand) {
+  async execute({ payload }: SignInWithCredentialsCommand) {
     this.logger.verbose('Received a command')
 
     // TODO: Send event, checkup device fingerprint, include profile ids inside token payload
@@ -46,7 +46,9 @@ export class SignInByCredentialsWorkflow implements WorkflowHandler<SignInWithCr
 
       if (!identity) {
         this.logger.error('No records match specified credentials')
-        throw new CredentialsDoNotMatchException()
+        throw new CredentialsDoNotMatchException({
+          loginType: isEmail ? 'email' : 'phone-number',
+        })
       }
 
       this.logger.log('Establishing a transaction')
