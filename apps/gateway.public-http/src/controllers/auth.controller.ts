@@ -15,6 +15,7 @@ import {
   EmailTakenException,
   PhoneNumberTakenException,
   CredentialsDoNotMatchException,
+  NoSessionFoundException,
 } from '@omg/message-registry'
 
 
@@ -82,12 +83,14 @@ export class AuthController {
   @ApiBearerAuth()
   public refreshSession(
     @Body() dto: AuthDto.RefreshSessionRequest,
-    @AuthzData() issuer: AuthzPayload,
+    @AuthzData() auth: AuthzPayload,
   ): Promise<AuthDto.TokenPairResponse> {
-
-    console.log(issuer)
     // TODO: add device fingerprinting
-    return new RefreshSessionCommand(dto)
+    return new RefreshSessionCommand(dto, { identityId: auth.identityId })
       .executeVia(this.natsClient)
+      .catch(filterException([NoSessionFoundException], exception => {
+        console.log('FUUUUCK')
+        throw new BadRequestException(exception.getError())
+      }))
   }
 }
