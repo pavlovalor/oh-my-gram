@@ -1,0 +1,34 @@
+{
+  "name": "@omg/profile-postgres-schema",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Identity DB schema and population seed",
+  "main": "dist/index.js",
+  "types": "lib/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "start:dev": "tsc --watch",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "studio": "drizzle-kit studio --config ./lib/config.ts",
+    "migrate:generate": "drizzle-kit generate --config ./lib/config.ts",
+    "migrate:push": "drizzle-kit migrate --config ./lib/config.ts",
+    "migrate:reset": "echo 'not implemented yet'"
+  },
+  "keywords": ["nestjs", "zod", "environment"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@omg/environment-module": "workspace:*",
+    "@nestjs/common": "^11.1.3",
+    "@nestjs/config": "^4.0.2",
+    "@types/cli-color": "^2.0.6",
+    "cli-color": "^2.0.4",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "@omg/eslint-config": "workspace:*",
+    "eslint": "^9.0.0",
+    "typescript-eslint": "^8.0.0"
+  }
+}
