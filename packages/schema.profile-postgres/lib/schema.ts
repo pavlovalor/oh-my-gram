@@ -1,3 +1,4 @@
+import { relations } from 'drizzle-orm'
 import { varchar, timestamp, uuid, foreignKey, integer, pgSchema, text, uniqueIndex } from 'drizzle-orm/pg-core'
 
 
@@ -19,7 +20,7 @@ export const profileGender = coreSchema.enum('gender', [
 
 export const profileTable = coreSchema.table('profile', {
   id: uuid().primaryKey().defaultRandom(),
-  createdAt: timestamp().defaultNow(),
+  createdAt: timestamp().notNull().defaultNow(),
   updatedAt: timestamp(),
   identityId: uuid().notNull(),
   username: varchar({ length: 16 }).notNull().unique(),
@@ -36,17 +37,17 @@ export const profileTable = coreSchema.table('profile', {
 })
 
 
-export const profileMentions = coreSchema.table('mentions', {
+export const profileMentionsTable = coreSchema.table('mentions', {
   id: uuid().primaryKey().defaultRandom(),
-  createdAt: timestamp().defaultNow(),
+  createdAt: timestamp().notNull().defaultNow(),
   postId: uuid().notNull(),
 })
 
 
-export const restrictions = coreSchema.table('restrictions', {
+export const restrictionsTable = coreSchema.table('restrictions', {
   id: uuid().primaryKey().defaultRandom(),
   profileId: uuid().notNull(),
-  createdAt: timestamp().defaultNow(),
+  createdAt: timestamp().notNull().defaultNow(),
   expiresAt: timestamp().notNull(),
   features: varchar({ length: 64 }).array().notNull(),
 }, currentTable => ({
@@ -57,9 +58,9 @@ export const restrictions = coreSchema.table('restrictions', {
 }))
 
 
-export const blacklist = relationsSchema.table('blacklist', {
+export const blacklistTable = relationsSchema.table('blacklist', {
   id: uuid().primaryKey().defaultRandom(),
-  createdAt: timestamp().defaultNow(),
+  createdAt: timestamp().notNull().defaultNow(),
   issuerId: uuid().notNull(),
   targetId: uuid().notNull(),
 }, currentTable => ({
@@ -73,11 +74,11 @@ export const blacklist = relationsSchema.table('blacklist', {
   }),
 }))
 
-export const followings = relationsSchema.table('followings', {
+export const followingsTable = relationsSchema.table('followings', {
   id: uuid().primaryKey().defaultRandom(),
   issuerId: uuid().notNull(),
   targetId: uuid().notNull(),
-  createdAt: timestamp().defaultNow(),
+  createdAt: timestamp().notNull().defaultNow(),
   reverseFollowingId: uuid(),
 }, currentTable => ({
   compositeUniqueKey: uniqueIndex('branch_direction').on(currentTable.issuerId, currentTable.targetId),

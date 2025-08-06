@@ -8,6 +8,8 @@ import { type NamespacedUuid } from '@omg/utils-module'
 export interface MessageMetadata {
   /** Who issued the message */
   identityId: string,
+  /** Under what profile the message issued */
+  profileId?: string,
   /** ID used to correlate this message with others in a workflow */
   correlationId: NamespacedUuid<'flow'>;
   /** ID of the message or operation that caused this one */
