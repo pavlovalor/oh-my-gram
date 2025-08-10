@@ -34,6 +34,7 @@ export class UpdateProfilePropertiesCommand extends Command.create(
   'profile.update-properties',
   Queue.ProfileService,
 )<{
+  id: string,
   displayName?: string,
   photoUri?: string,
   gender?: 'male' | 'female' | 'confused',
@@ -88,6 +89,6 @@ export class DropProfileCommand extends Command.create(
   'profile.drop',
   Queue.ProfileService,
 )<{
-  profileId: string
+  id: string
 }, {}> {}
 
