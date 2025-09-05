@@ -1,12 +1,13 @@
 
-import { Inject, Injectable, Logger } from '@nestjs/common'
-import { PostgresClient } from '@omg/postgres-module'
-import { IdentityDatabaseClientInjectionToken } from '~/app/app.constants'
-import { Schema } from '@omg/identity-postgres-schema'
-import { CredentialsDoNotMatchException, SignInWithCredentialsCommand, type WorkflowHandler } from '@omg/message-registry'
+import { CredentialsDoNotMatchException, SessionCreatedEvent, SignInWithCredentialsCommand, type WorkflowHandler } from '@omg/message-registry'
+import { IdentityDatabaseClientInjectionToken, NatsClientInjectionToken } from '~/app/app.constants'
 import { AccessTokenLifetime, RefreshTokenLifetime } from './constants'
+import { Inject, Injectable, Logger } from '@nestjs/common'
 import { ApplicationService } from '~/app/app.service'
+import { PostgresClient } from '@omg/postgres-module'
 import { AuthzService } from '@omg/authz-module'
+import { ClientProxy } from '@nestjs/microservices'
+import { Schema } from '@omg/identity-postgres-schema'
 import { and, eq } from 'drizzle-orm'
 import * as dayjs from 'dayjs'
 import * as color from 'cli-color'
@@ -17,6 +18,8 @@ export class SignInByCredentialsWorkflow implements WorkflowHandler<SignInWithCr
   private readonly logger = new Logger(SignInByCredentialsWorkflow.name)
 
   constructor(
+    @Inject(NatsClientInjectionToken)
+    private readonly natsClient: ClientProxy,
     @Inject(IdentityDatabaseClientInjectionToken)
     private readonly postgresClient: PostgresClient<typeof Schema>,
     private readonly applicationService: ApplicationService,
@@ -24,7 +27,7 @@ export class SignInByCredentialsWorkflow implements WorkflowHandler<SignInWithCr
   ) {}
 
 
-  async execute({ payload }: SignInWithCredentialsCommand) {
+  async execute({ payload, meta }: SignInWithCredentialsCommand) {
     this.logger.verbose('Received a command')
 
     // TODO: Send event, checkup device fingerprint, include profile ids inside token payload
@@ -62,6 +65,14 @@ export class SignInByCredentialsWorkflow implements WorkflowHandler<SignInWithCr
         })
         .returning()
     })
+
+    void await new SessionCreatedEvent({
+      sessionId: session.id
+    }, {
+      identityId: meta.identityId,
+      causationId: meta.id!,
+      correlationId: meta.correlationId!,
+    }).passVia(this.natsClient)
 
     return {
       accessToken: {

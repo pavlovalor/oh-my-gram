@@ -12,7 +12,7 @@ import { ApplicationController } from './app.controller'
 import { ApplicationService } from './app.service'
 import { EnvironmentSchema } from './app.env-schema'
 import { Queue } from '@omg/message-registry'
-import { SignUpByCredentialsWorkflow } from '~/workflows/sign-up-by-credentials.workflow'
+import * as Workflows from '~/workflows'
 
 
 @Module({
@@ -58,7 +58,7 @@ import { SignUpByCredentialsWorkflow } from '~/workflows/sign-up-by-credentials.
   controllers: [ApplicationController],
   providers: [
     ApplicationService,
-    SignUpByCredentialsWorkflow,
+    Workflows.SignUpByCredentialsWorkflow,
   ],
 })
 export class ApplicationModule {}

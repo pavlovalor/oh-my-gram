@@ -10,12 +10,9 @@ import { Module } from '@nestjs/common'
 import { IdentityDatabaseClientInjectionToken, NatsClientInjectionToken } from './app.constants'
 import { ApplicationController } from './app.controller'
 import { EnvironmentSchema } from './app.env-schema'
-import {
-  SignInByCredentialsWorkflow,
-  RefreshSessionWorkflow
-} from '../workflows'
 import { ApplicationService } from './app.service'
 import { AuthzModule } from '@omg/authz-module'
+import * as Workflows from '../workflows'
 
 
 @Module({
@@ -68,8 +65,8 @@ import { AuthzModule } from '@omg/authz-module'
   controllers: [ApplicationController],
   providers: [
     ApplicationService,
-    SignInByCredentialsWorkflow,
-    RefreshSessionWorkflow,
+    Workflows.SignInByCredentialsWorkflow,
+    Workflows.RefreshSessionWorkflow,
   ],
 })
 export class ApplicationModule {}

@@ -7,7 +7,7 @@ import { type NamespacedUuid } from '@omg/utils-module'
 /** Metadata that accompanies every message sent over NATS */
 export interface MessageMetadata {
   /** Who issued the message */
-  identityId: string,
+  identityId?: string,
   /** Under what profile the message issued */
   profileId?: string,
   /** ID used to correlate this message with others in a workflow */

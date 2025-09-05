@@ -23,7 +23,8 @@ import {
 @Controller('auth')
 export class AuthController {
   constructor(
-    @Inject(NatsClientInjectionToken) private readonly natsClient: ClientProxy,
+    @Inject(NatsClientInjectionToken)
+    private readonly natsClient: ClientProxy,
   ) {}
 
   @Post('sign-up')

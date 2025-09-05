@@ -86,12 +86,12 @@ export abstract class Command<$$RequestPayload extends object, $$ResponsePayload
       .build()
 
     this.logger.verbose(`Initiating execution of ${color.yellow(this.meta.id)}`)
-    this.logger.verbose(`Path ${color.yellow(`${pattern} --> ${queue}`)}`)
+    this.logger.verbose(`Path ${color.yellow(`${pattern} --> ${queue ?? '[*]'}`)}`)
     this.logger.debug(record.data)
 
     const stream = client
       .send({ pattern: matcher.pattern, queue: queue ?? matcher.queue }, record)
-      .pipe(catchError(error => {
+      .pipe(catchError(error => { // Exception deserialization process
         const ExceptionConstructor: any = 'code' in error
           ? ExceptionRegistry[error.code]
           : null

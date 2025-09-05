@@ -1,10 +1,11 @@
 import { AccessTokenLifetime, RefreshTokenLifetime } from './constants'
-import { RefreshSessionCommand, WorkflowHandler, NoSessionFoundException } from '@omg/message-registry'
-import { IdentityDatabaseClientInjectionToken } from '~/app/app.constants'
+import { RefreshSessionCommand, WorkflowHandler, NoSessionFoundException, SessionRefreshedEvent } from '@omg/message-registry'
+import { IdentityDatabaseClientInjectionToken, NatsClientInjectionToken } from '~/app/app.constants'
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import { ApplicationService } from '~/app/app.service'
 import { PostgresClient } from '@omg/postgres-module'
 import { AuthzService } from '@omg/authz-module'
+import { ClientProxy } from '@nestjs/microservices'
 import { Schema } from '@omg/identity-postgres-schema'
 import { and, eq } from 'drizzle-orm'
 import * as dayjs from 'dayjs'
@@ -14,6 +15,8 @@ export class RefreshSessionWorkflow implements WorkflowHandler<RefreshSessionCom
   private readonly logger = new Logger(RefreshSessionWorkflow.name)
 
   constructor(
+    @Inject(NatsClientInjectionToken)
+    private readonly natsClient: ClientProxy,
     @Inject(IdentityDatabaseClientInjectionToken)
     private readonly postgresClient: PostgresClient<typeof Schema>,
     private readonly applicationService: ApplicationService,
@@ -44,6 +47,14 @@ export class RefreshSessionWorkflow implements WorkflowHandler<RefreshSessionCom
         refreshToken: payload.refreshToken,
       })
     }
+
+    void await new SessionRefreshedEvent({
+      sessionId: session.id
+    }, {
+      identityId: meta.identityId,
+      causationId: meta.id!,
+      correlationId: meta.correlationId!,
+    }).passVia(this.natsClient)
 
     return {
       accessToken: {

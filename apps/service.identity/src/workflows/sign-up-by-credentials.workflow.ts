@@ -1,9 +1,10 @@
-import { type WorkflowHandler, EmailTakenException, PhoneNumberTakenException, SignUpWithCredentialsCommand } from '@omg/message-registry'
+import { type WorkflowHandler, EmailTakenException, IdentityCreatedEvent, PhoneNumberTakenException, SignUpWithCredentialsCommand } from '@omg/message-registry'
+import { IdentityDatabaseClientInjectionToken, NatsClientInjectionToken } from '~/app/app.constants'
 import { Inject, Injectable, Logger } from '@nestjs/common'
-import { IdentityDatabaseClientInjectionToken } from '~/app/app.constants'
-import { PostgresClient } from '@omg/postgres-module'
-import { Schema } from '@omg/identity-postgres-schema'
 import { ApplicationService } from '~/app/app.service'
+import { PostgresClient } from '@omg/postgres-module'
+import { ClientProxy } from '@nestjs/microservices'
+import { Schema } from '@omg/identity-postgres-schema'
 import * as color from 'cli-color'
 
 
@@ -12,13 +13,15 @@ export class SignUpByCredentialsWorkflow implements WorkflowHandler<SignUpWithCr
   private readonly logger = new Logger(SignUpByCredentialsWorkflow.name)
 
   constructor(
+    @Inject(NatsClientInjectionToken)
+    private readonly natsClient: ClientProxy,
     @Inject(IdentityDatabaseClientInjectionToken)
     private readonly postgresClient: PostgresClient<typeof Schema>,
     private readonly applicationService: ApplicationService,
   ) {}
 
 
-  async execute({ payload }: SignUpWithCredentialsCommand) {
+  async execute({ payload, meta }: SignUpWithCredentialsCommand) {
     this.logger.verbose('Received a command')
 
     const passwordHashValue = this.applicationService.generatePasswordHash(payload.password)
@@ -48,6 +51,14 @@ export class SignUpByCredentialsWorkflow implements WorkflowHandler<SignUpWithCr
 
       this.logger.verbose('Login method saved')
       this.logger.verbose('Transaction complete')
+
+      void await new IdentityCreatedEvent({
+        identityId: identity.id
+      }, {
+        identityId: meta.identityId,
+        causationId: meta.id!,
+        correlationId: meta.correlationId!,
+      }).passVia(this.natsClient)
 
       return { identityId: identity.id }
     }).catch(exception => {

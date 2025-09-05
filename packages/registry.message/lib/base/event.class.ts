@@ -1,10 +1,9 @@
 import { type ClientProxy, NatsRecordBuilder } from '@nestjs/microservices'
 import { generateNamespacedUuid } from '@omg/utils-module'
-import { catchError } from 'rxjs'
 import { type MessageMetadata } from '../types'
 import { Logger } from '@nestjs/common'
 import * as nats from 'nats'
-// import color from 'cli-color'
+import color from 'cli-color'
 
 
 /**
@@ -19,7 +18,7 @@ export abstract class Event<$$Payload extends object> {
 
   constructor(
     public readonly payload: NoInfer<$$Payload>,
-    public readonly meta: MessageMetadata,
+    public readonly meta: Partial<MessageMetadata>,
   ) {
     this.logger = new Logger(this.constructor.name)
 
@@ -66,8 +65,13 @@ export abstract class Event<$$Payload extends object> {
       .setHeaders(headers)
       .build()
 
+    this.logger.verbose(`Initiating emission of ${color.yellow(this.meta.id)}`)
+    this.logger.verbose(`Path ${color.yellow(pattern)}`)
+    this.logger.debug(record.data)
+
     client
       .send({ pattern }, record)
-      .pipe(catchError((error: Error) => { throw error }))
+
+    this.logger.verbose(`Success`)
   }
 }

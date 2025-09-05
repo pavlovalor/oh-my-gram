@@ -5,7 +5,7 @@ import { MessageMetadata } from '../types'
 import { Logger } from '@nestjs/common'
 import { Queue } from '../queues'
 import * as nats from 'nats'
-// import color from 'cli-color'
+import color from 'cli-color'
 
 /**
  * Base abstract class for a NATS-backed query message.
@@ -54,7 +54,7 @@ export abstract class Query<$$RequestPayload extends object, $$ResponsePayload e
    * @throws If the remote handler returns an error.
    */
   public async passVia(client: ClientProxy, queue?: string): Promise<$$ResponsePayload> {
-    const matcher = Object.getPrototypeOf(this).constructor.matcher
+    const { matcher, pattern } = Object.getPrototypeOf(this).constructor
     const headers = nats.headers()
 
     /**
@@ -70,10 +70,21 @@ export abstract class Query<$$RequestPayload extends object, $$ResponsePayload e
       .setHeaders(headers)
       .build()
 
+    this.logger.verbose(`Initiating execution of ${color.yellow(this.meta.id)}`)
+    this.logger.verbose(`Path ${color.yellow(`${pattern} --> ${queue ?? '[*]'}`)}`)
+    this.logger.debug(record.data)
+
     const stream = client
       .send({ pattern: matcher.pattern, queue: queue ?? matcher.queue }, record)
       .pipe(catchError((error: Error) => { throw error }))
 
-    return firstValueFrom(stream)
+    this.logger.verbose(`Awaiting response...`)
+
+    const response = await firstValueFrom(stream)
+
+    this.logger.verbose(`Success`)
+    this.logger.debug(response)
+
+    return response
   }
 }
