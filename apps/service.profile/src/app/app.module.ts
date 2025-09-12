@@ -12,7 +12,12 @@ import { ApplicationController } from './app.controller'
 import { ApplicationService } from './app.service'
 import { EnvironmentSchema } from './app.env-schema'
 import { Queue } from '@omg/message-registry'
-import { SignUpByCredentialsWorkflow } from '~/workflows/get-profile-by-id.workflow'
+
+// Workflows
+import { UpdateProfilePropertiesWorkflow } from '~/workflows/update-profile-properties.workflow'
+import { InitializeProfileWorkflow } from '~/workflows/initialize-profile.workflow'
+import { GetProfileByIdWorkflow } from '~/workflows/get-profile-by-id.workflow'
+import { DropProfileWorkflow } from '~/workflows/drop-profile.workflow'
 
 
 @Module({
@@ -58,7 +63,10 @@ import { SignUpByCredentialsWorkflow } from '~/workflows/get-profile-by-id.workf
   controllers: [ApplicationController],
   providers: [
     ApplicationService,
-    SignUpByCredentialsWorkflow,
+    DropProfileWorkflow,
+    GetProfileByIdWorkflow,
+    InitializeProfileWorkflow,
+    UpdateProfilePropertiesWorkflow,
   ],
 })
 export class ApplicationModule {}

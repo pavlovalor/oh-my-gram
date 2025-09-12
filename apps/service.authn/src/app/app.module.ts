@@ -3,6 +3,7 @@ import { EnvironmentModule, EnvironmentService } from '@omg/environment-module'
 import { ClientsModule, Transport } from '@nestjs/microservices'
 import { PostgresModule } from '@omg/postgres-module'
 import { RedisModule } from '@liaoliaots/nestjs-redis'
+import { AuthzModule } from '@omg/authz-module'
 import { Schema } from '@omg/identity-postgres-schema'
 import { Module } from '@nestjs/common'
 
@@ -11,8 +12,10 @@ import { IdentityDatabaseClientInjectionToken, NatsClientInjectionToken } from '
 import { ApplicationController } from './app.controller'
 import { EnvironmentSchema } from './app.env-schema'
 import { ApplicationService } from './app.service'
-import { AuthzModule } from '@omg/authz-module'
-import * as Workflows from '../workflows'
+
+// Workflows
+import { SignInByCredentialsWorkflow } from '~/workflows/sign-in-by-credentials.workflow'
+import { RefreshSessionWorkflow } from '~/workflows/refresh-session.workflow'
 
 
 @Module({
@@ -65,8 +68,8 @@ import * as Workflows from '../workflows'
   controllers: [ApplicationController],
   providers: [
     ApplicationService,
-    Workflows.SignInByCredentialsWorkflow,
-    Workflows.RefreshSessionWorkflow,
+    SignInByCredentialsWorkflow,
+    RefreshSessionWorkflow,
   ],
 })
 export class ApplicationModule {}

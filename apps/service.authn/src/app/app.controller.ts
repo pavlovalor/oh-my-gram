@@ -1,14 +1,11 @@
+// Core
 import { Controller } from '@nestjs/common'
 import { MessagePattern, Payload } from '@nestjs/microservices'
 
-import {
-  SignInWithCredentialsCommand,
-  RefreshSessionCommand,
-} from '@omg/message-registry'
-import {
-  SignInByCredentialsWorkflow,
-  RefreshSessionWorkflow,
-} from '~/workflows'
+// Local
+import { SignInWithCredentialsCommand, RefreshSessionCommand } from '@omg/message-registry'
+import { SignInByCredentialsWorkflow } from '~/workflows/sign-in-by-credentials.workflow'
+import { RefreshSessionWorkflow } from '~/workflows/refresh-session.workflow'
 
 
 @Controller()

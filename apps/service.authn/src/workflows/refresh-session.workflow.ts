@@ -10,6 +10,7 @@ import { Schema } from '@omg/identity-postgres-schema'
 import { and, eq } from 'drizzle-orm'
 import * as dayjs from 'dayjs'
 
+
 @Injectable()
 export class RefreshSessionWorkflow implements WorkflowHandler<RefreshSessionCommand> {
   private readonly logger = new Logger(RefreshSessionWorkflow.name)
