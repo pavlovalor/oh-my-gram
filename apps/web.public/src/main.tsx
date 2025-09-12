@@ -10,7 +10,7 @@ import '@mantine/core/styles.css';
 import { PublicLayout } from './layouts/PublicLayout/structure'
 import { InternalLayout } from './layouts/InternalLayout'
 import { SettingsLayout } from './layouts/SettingsLayout'
-import { AuthLayout } from './layouts/AuthLayout'
+import { AuthLayout } from './layouts/AuthLayout/structure'
 
 // Pages
 import { FeedPage } from './pages/FeedPage'
