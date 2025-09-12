@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { type Command } from './base/command.class'
-import { type Query } from './base/query.class'
+import { type CommandFactory } from './base/command.factory'
+import { type QueryFactory } from './base/query.factory'
 import { type NamespacedUuid } from '@omg/utils-module'
 
 
@@ -33,8 +33,8 @@ export interface MessageMetadata {
  * ```
  */
 export type MessageResponse<$MessageConstructor> =
-  $MessageConstructor extends Command<any, infer $ResponseType> ? $ResponseType :
-  $MessageConstructor extends Query<any, infer $ResponseType> ? $ResponseType :
+  $MessageConstructor extends CommandFactory<any, infer $ResponseType> ? $ResponseType :
+  $MessageConstructor extends QueryFactory<any, infer $ResponseType> ? $ResponseType :
   void
 
 

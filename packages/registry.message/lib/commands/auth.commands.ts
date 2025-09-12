@@ -1,5 +1,5 @@
 import { Queue } from '../queues'
-import { Command } from '../base/command.class'
+import { CommandFactory } from '../base/command.factory'
 
 
 interface Token {
@@ -7,7 +7,7 @@ interface Token {
   ttl: number,
 }
 
-export class SignUpWithCredentialsCommand extends Command.create(
+export class SignUpWithCredentialsCommand extends CommandFactory.create(
   'auth.sign-up.with-credentials',
   Queue.IdentityService,
 )<{
@@ -18,7 +18,7 @@ export class SignUpWithCredentialsCommand extends Command.create(
 }> {}
 
 
-export class SignInWithCredentialsCommand extends Command.create(
+export class SignInWithCredentialsCommand extends CommandFactory.create(
   'auth.sign-in.with-credentials',
   Queue.AuthService,
 )<{
@@ -31,7 +31,7 @@ export class SignInWithCredentialsCommand extends Command.create(
 }> {}
 
 
-export class RefreshSessionCommand extends Command.create(
+export class RefreshSessionCommand extends CommandFactory.create(
   'auth.refresh-session',
   Queue.AuthService,
 )<{

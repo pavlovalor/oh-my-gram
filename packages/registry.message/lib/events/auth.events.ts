@@ -1,21 +1,21 @@
-import { Event } from '../base/event.class'
+import { EventFactory } from '../base/event.factory'
 
 
 export class IdentityCreatedEvent
-  extends Event.create('auth.identity.created')<{
+  extends EventFactory.create('auth.identity.created')<{
   }> {}
 
 export class SessionCreatedEvent
-  extends Event.create('auth.session.created')<{
+  extends EventFactory.create('auth.session.created')<{
     sessionId: string,
   }> {}
 
 export class SessionRefreshedEvent
-  extends Event.create('auth.session.refreshed')<{
+  extends EventFactory.create('auth.session.refreshed')<{
     sessionId: string,
   }> {}
 
 export class SessionTerminatedEvent
-  extends Event.create('auth.session.terminated')<{
+  extends EventFactory.create('auth.session.terminated')<{
     sessionId: string,
   }> {}

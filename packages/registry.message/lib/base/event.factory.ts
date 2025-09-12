@@ -12,7 +12,7 @@ import color from 'cli-color'
  * @abstract
  * @template $$Payload  - Shape of the event payload.
  */
-export abstract class Event<$$Payload extends object> {
+export abstract class EventFactory<$$Payload extends object> {
   private readonly logger: Logger
 
 
@@ -28,6 +28,7 @@ export abstract class Event<$$Payload extends object> {
     meta.timestamp ??= new Date()
   }
 
+
   /**
    * Define the NATS subject pattern for this event.
    *
@@ -37,13 +38,10 @@ export abstract class Event<$$Payload extends object> {
    */
   static create<$Signature extends string>(signature: $Signature) {
     const pattern = `event.${signature}` as const
-    const wrapper = class EventWrapper<$$Res extends object> extends Event<$$Res> {}
+    const wrapper = class EventWrapper<$$Res extends object> extends EventFactory<$$Res> {}
     return Object.assign(wrapper, { pattern, matcher: { pattern } })
   }
 
-  public static get matcher() {
-    return { pattern: Object.getPrototypeOf(this).constructor.pattern }
-  }
 
   /**
    * Publish this event over NATS without awaiting a response.
@@ -52,7 +50,7 @@ export abstract class Event<$$Payload extends object> {
    * @param queue  - The JetStream consumer (or queue group) name.
    */
   public async passVia(client: ClientProxy): Promise<void> {
-    const pattern = Object.getPrototypeOf(this).constructor.pattern
+    const { pattern } = Object.getPrototypeOf(this).constructor
     const headers = nats.headers()
 
     /**
@@ -61,7 +59,7 @@ export abstract class Event<$$Payload extends object> {
      */
     headers.set('Nats-Msg-Id', this.meta.id!)
 
-    const record = new NatsRecordBuilder(this.payload)
+    const record = new NatsRecordBuilder({ payload: this.payload })
       .setHeaders(headers)
       .build()
 

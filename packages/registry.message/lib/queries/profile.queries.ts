@@ -1,8 +1,8 @@
-import { Query } from '../base/query.class'
+import { QueryFactory } from '../base/query.factory'
 import { Queue } from '../queues'
 
 
-export class GetProfileByIdQuery extends Query.create(
+export class GetProfileByIdQuery extends QueryFactory.create(
   'profile.get-by-id',
   Queue.IdentityService,
 )<{

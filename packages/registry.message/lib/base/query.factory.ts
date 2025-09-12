@@ -14,7 +14,7 @@ import color from 'cli-color'
  * @template $$RequestPayload  - Shape of the query payload.
  * @template $$ResponsePayload - Expected shape of the response.
  */
-export abstract class Query<$$RequestPayload extends object, $$ResponsePayload extends object> {
+export abstract class QueryFactory<$$RequestPayload extends object, $$ResponsePayload extends object> {
   private readonly logger: Logger
 
 
@@ -40,7 +40,7 @@ export abstract class Query<$$RequestPayload extends object, $$ResponsePayload e
    */
   static create<$Signature extends string>(signature: $Signature, queue: Queue) {
     const pattern = `query.${signature}` as const
-    const wrapper = class QueryWrapper<$$Res extends object, $$Req extends object> extends Query<$$Res, $$Req> {}
+    const wrapper = class QueryWrapper<$$Res extends object, $$Req extends object> extends QueryFactory<$$Res, $$Req> {}
     return Object.assign(wrapper, { pattern, matcher: { pattern, queue } })
   }
 

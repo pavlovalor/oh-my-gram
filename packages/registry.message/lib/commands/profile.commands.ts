@@ -1,8 +1,8 @@
 import { Queue } from '../queues'
-import { Command } from '../base/command.class'
+import { CommandFactory } from '../base/command.factory'
 
 
-export class InitializeProfileCommand extends Command.create(
+export class InitializeProfileCommand extends CommandFactory.create(
   'profile.init',
   Queue.AuthService,
 )<{
@@ -30,7 +30,7 @@ export class InitializeProfileCommand extends Command.create(
 }> {}
 
 
-export class UpdateProfilePropertiesCommand extends Command.create(
+export class UpdateProfilePropertiesCommand extends CommandFactory.create(
   'profile.update-properties',
   Queue.ProfileService,
 )<{
@@ -60,7 +60,7 @@ export class UpdateProfilePropertiesCommand extends Command.create(
 }> {}
 
 
-export class ChangeProfileTypeCommand extends Command.create(
+export class ChangeProfileTypeCommand extends CommandFactory.create(
   'profile.change-type',
   Queue.ProfileService,
 )<{
@@ -85,7 +85,7 @@ export class ChangeProfileTypeCommand extends Command.create(
 }> {}
 
 
-export class DropProfileCommand extends Command.create(
+export class DropProfileCommand extends CommandFactory.create(
   'profile.drop',
   Queue.ProfileService,
 )<{

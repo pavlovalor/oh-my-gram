@@ -16,7 +16,7 @@ import color from 'cli-color'
  * @template $$RequestPayload  - Shape of the command payload.
  * @template $$ResponsePayload - Expected shape of the response.
  */
-export abstract class Command<$$RequestPayload extends object, $$ResponsePayload extends object> {
+export abstract class CommandFactory<$$RequestPayload extends object, $$ResponsePayload extends object> {
   private readonly logger: Logger
 
 
@@ -55,7 +55,7 @@ export abstract class Command<$$RequestPayload extends object, $$ResponsePayload
    */
   public static create<$Signature extends string>(signature: $Signature, queue: Queue) {
     const pattern = `command.${signature}` as const
-    const wrapper = class CommandWrapper<$$Res extends object, $$Req extends object> extends Command<$$Res, $$Req> {}
+    const wrapper = class CommandWrapper<$$Res extends object, $$Req extends object> extends CommandFactory<$$Res, $$Req> {}
     return Object.assign(wrapper, { pattern, matcher: { pattern, queue } })
   }
 
