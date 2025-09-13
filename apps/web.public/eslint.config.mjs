@@ -1,3 +1,3 @@
-import nestPreset from '@omg/eslint-config/react';
+import reactPreset from '@omg/eslint-config/react';
 
-export default [...nestPreset];
+export default [...reactPreset];

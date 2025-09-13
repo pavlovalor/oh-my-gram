@@ -18,6 +18,7 @@ import { RouteTree } from '~/routes'
 const mountingPoint = document.getElementById('root')!
 const queryClient = new QueryClient()
 
+
 ReactDom
   .createRoot(mountingPoint, {
     identifierPrefix: '@omg',

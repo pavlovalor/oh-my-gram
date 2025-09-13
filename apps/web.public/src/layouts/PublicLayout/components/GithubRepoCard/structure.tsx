@@ -18,7 +18,7 @@ export const GithubRepoCard: React.FC<{
       </Text>
     </Group>
   )
-  
+
   if (githubRepo.isLoading) return (
     <React.Fragment>
       <Stack gap={8}>
@@ -45,8 +45,8 @@ export const GithubRepoCard: React.FC<{
         <Skeleton height={8} width={120} radius="xl" />
       </Stack>
     </React.Fragment>
-  ) 
-  
+  )
+
   return (
     <React.Fragment>
       <Group>

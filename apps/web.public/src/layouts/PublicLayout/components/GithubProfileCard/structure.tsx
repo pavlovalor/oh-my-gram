@@ -17,7 +17,7 @@ export const GithubProfileCard: React.FC<{
       </Text>
     </Group>
   )
-  
+
   if (githubProfile.isLoading) return (
     <React.Fragment>
       <Group>
@@ -45,8 +45,8 @@ export const GithubProfileCard: React.FC<{
         </Group>
       </Group>
     </React.Fragment>
-  ) 
-  
+  )
+
   return (
     <React.Fragment>
       <Group>

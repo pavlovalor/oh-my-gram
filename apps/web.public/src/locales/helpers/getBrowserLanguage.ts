@@ -7,9 +7,9 @@ import { DEFAULT_LOCALE, LOCALES } from '../iso-codes'
  * @returns The browser language as IsoCode.
  */
 export function getBrowserLanguage() {
-  if (navigator?.language) 
+  if (navigator?.language)
     for (const locale of LOCALES)
-      if (navigator.language.startsWith(locale)) 
+      if (navigator.language.startsWith(locale))
         return locale as typeof LOCALES[number]
 
   return DEFAULT_LOCALE

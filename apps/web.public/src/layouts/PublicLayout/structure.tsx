@@ -45,18 +45,18 @@ export const PublicLayout: React.FC = () => {
           <Stack gap={16} align="center">
             <Group justify="center">
               <HoverCard withArrow
-                shadow="md" 
-                width={320} 
-                openDelay={200} 
+                shadow="md"
+                width={320}
+                openDelay={200}
                 closeDelay={400}>
                 <HoverCard.Target>
                   <Anchor
                     href="https://github.com/pavlovalor"
                     target="_blank"
                     rel="nofollow">
-                      <Trans id="layout.public.footer.menu.items.github-profile">
+                    <Trans id="layout.public.footer.menu.items.github-profile">
                         Github profile
-                      </Trans>
+                    </Trans>
                   </Anchor>
                 </HoverCard.Target>
                 <HoverCard.Dropdown>
@@ -65,9 +65,9 @@ export const PublicLayout: React.FC = () => {
               </HoverCard>
 
               <HoverCard withArrow
-                shadow="md" 
-                width={320} 
-                openDelay={200} 
+                shadow="md"
+                width={320}
+                openDelay={200}
                 closeDelay={400}>
                 <HoverCard.Target>
                   <Anchor
@@ -93,7 +93,7 @@ export const PublicLayout: React.FC = () => {
                 </Trans>
               </Anchor>
 
-              <Anchor 
+              <Anchor
                 component={Link}
                 to="/idea">
                 <Trans id="layout.public.footer.menu.items.idea">
@@ -101,14 +101,14 @@ export const PublicLayout: React.FC = () => {
                 </Trans>
               </Anchor>
 
-              <Anchor 
+              <Anchor
                 component={Link}
                 to="/terms">
                 <Trans id="layout.public.footer.menu.items.terms">
                   Terms
                 </Trans>
               </Anchor>
-              
+
               <Anchor
                 component={Link}
                 to="/privacy">
@@ -132,19 +132,19 @@ export const PublicLayout: React.FC = () => {
                   label: `${fuckingLanguage.flag} ${fuckingLanguage.nativeName}`,
                   value: fuckingLanguage.isoCode,
                 })} />
-                
-                <ColorSchemeSwitch />
+
+              <ColorSchemeSwitch />
             </Group>
 
             <Text size="sm">
               Authored by&nbsp;
               <HoverCard withArrow
-                shadow="md" 
-                width={320} 
-                openDelay={200} 
+                shadow="md"
+                width={320}
+                openDelay={200}
                 closeDelay={400}>
                 <HoverCard.Target>
-                  <Anchor 
+                  <Anchor
                     href="https://github.com/pavlovalor"
                     target="_blank"
                     rel="nofollow">

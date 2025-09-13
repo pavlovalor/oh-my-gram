@@ -52,7 +52,7 @@ export const LANGUAGES: Language[] = [
   { isoCode: 'zh', countryCode: 'cn', flag: '🇨🇳', name: 'Chinese', nativeName: '简体中文', isRTL: false },
 ] as const
 
-const languageMap: Map<IsoCode, Language> = new Map(LANGUAGES.map((value) => [value.isoCode, value]))
+const languageMap: Map<IsoCode, Language> = new Map(LANGUAGES.map(value => [value.isoCode, value]))
 export const DEFAULT_LANGUAGE: Language = isoCodeToLanguage(DEFAULT_LOCALE) ?? LANGUAGES[0]
 
 /**
@@ -91,7 +91,7 @@ export function isoWithRegionCode(isoCode: IsoCode, delimiter?: string | null): 
  */
 export const getLanguagesSorted = (preferredLanguage?: IsoCode): Language[] => {
   const filtered = LANGUAGES
-    .filter((lang) => preferredLanguage ? lang.isoCode !== preferredLanguage : true)
+    .filter(lang => preferredLanguage ? lang.isoCode !== preferredLanguage : true)
     .sort((a, b) => a.nativeName.localeCompare(b.nativeName))
 
   if (preferredLanguage) {

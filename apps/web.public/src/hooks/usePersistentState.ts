@@ -104,7 +104,7 @@ export function usePersistentState<$State>(
 
       if (record?.version === version) return record.state
       else storage.removeItem(recordId)
-    } catch (exception: unknown) { return }
+    } catch (_exception: unknown) { return }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

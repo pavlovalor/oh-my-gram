@@ -37,7 +37,7 @@ export const RouteTree: React.FC = () => (
 
       <Route path="settings" element={<SettingsLayout />}>
         <Route path="profile" element={<ProfileSettingsPage />} />
-        
+
       </Route>
     </Route>
 

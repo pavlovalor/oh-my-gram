@@ -9,7 +9,11 @@ export const AuthLayout: React.FC = () => {
   return (
     <Center p="xl" mih="100dvh" pb={100}>
       <Group align="center" justify="center" gap="xl">
-        <img src={illustration} className="mantine-visible-from-sm" style={{ maxWidth: '45%' }} />
+        <img
+          src={illustration}
+          alt="Cards with people posting stuff"
+          className="mantine-visible-from-sm"
+          style={{ maxWidth: '45%' }} />
         <Stack>
           <WrittenLogo height={42} />
           <Outlet />

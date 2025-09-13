@@ -3,7 +3,7 @@ import { IconMoon, IconBrightnessAutoFilled, IconSun } from '@tabler/icons-react
 import * as React from 'react'
 
 type ComputedColorScheme = Exclude<MantineColorScheme, 'auto'>
-const getOppositeColorScheme = (colorScheme: ComputedColorScheme): ComputedColorScheme => 
+const getOppositeColorScheme = (colorScheme: ComputedColorScheme): ComputedColorScheme =>
   colorScheme === 'dark' ? 'light' : 'dark'
 
 export const ColorSchemeSwitch: React.FC = () => {

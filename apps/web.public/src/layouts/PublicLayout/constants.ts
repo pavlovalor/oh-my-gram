@@ -1,4 +1,4 @@
-import { type NotificationData } from '@mantine/notifications';
+import { type NotificationData } from '@mantine/notifications'
 
 export const refusalNotificationChain: NotificationData[] = [
   {

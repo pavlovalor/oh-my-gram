@@ -14,8 +14,8 @@ export const WrittenLogo: React.FC<WrittenLogoProps> = ({ color: colorKey = '', 
   const computedColorScheme = useComputedColorScheme()
   const theme = useMantineTheme()
   const [palette, shade] = (colorKey.split('.') ?? []) as [keyof MantineThemeColors, MantineColorShade]
-  const color = palette && shade 
-    ? theme.colors[palette][+shade] 
+  const color = palette && shade
+    ? theme.colors[palette][+shade]
     : theme.colors[computedColorScheme === 'dark' ? 'gray' : 'dark'][5]
 
   return (
