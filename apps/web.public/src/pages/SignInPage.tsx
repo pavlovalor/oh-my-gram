@@ -1,5 +1,5 @@
 import { Divider, Stack, Input, Button, Group, ActionIcon } from '@mantine/core'
-import { IconAsterisk, IconEyeClosed, IconEye, IconFingerprint, IconLogin2, IconUser } from '@tabler/icons-react'
+import { IconAsterisk, IconEyeClosed, IconEye, IconFingerprint, IconUser } from '@tabler/icons-react'
 import * as React from 'react'
 
 
@@ -32,7 +32,6 @@ export const SignInPage: React.FC = () => {
           </ActionIcon>
           <Button
             variant="gradient"
-            rightSection={<IconLogin2 />}
             style={{ flexGrow: 1 }}>
             Sign in
           </Button>

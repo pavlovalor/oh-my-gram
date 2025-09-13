@@ -1,16 +1,38 @@
 // Core
+import { notifications } from '@mantine/notifications'
 import { Outlet, Link } from 'react-router'
+import { Trans } from '@lingui/react/macro'
 import * as React from 'react'
 
 // Mantine
 import { Anchor, AppShell, Badge, Center, Group, Stack, Text, HoverCard, Select } from '@mantine/core'
 
 // Local
+import { LocalesContext, LANGUAGES, LOCALES } from '~/locales'
+import { refusalNotificationChain } from './constants'
 import { GithubProfileCard } from './components/GithubProfileCard/structure'
 import { GithubRepoCard } from './components/GithubRepoCard/structure'
 
 
+const fuckingLanguage = LANGUAGES[24]
+const availableLanguages = LANGUAGES
+  .filter(l => LOCALES.includes(l.isoCode as typeof LOCALES[number]))
+
+
 export const PublicLayout: React.FC = () => {
+  const [forbiddenAttemptCount, setForbiddenAttemptCount] = React.useState(0)
+  const localeContext = React.useContext(LocalesContext)
+
+  const handleLocaleSelect = React.useCallback((value: string | null) => {
+    if (localeContext.isLoading) return
+    if (localeContext.currentLocale === value) return
+    if (value === fuckingLanguage.isoCode) {
+      notifications.show(refusalNotificationChain[forbiddenAttemptCount])
+      return void setForbiddenAttemptCount(c => ++c)
+    }
+
+    localeContext.setNextLocale(value as typeof LOCALES[number])
+  }, [localeContext, forbiddenAttemptCount, setForbiddenAttemptCount])
 
   return (
     <AppShell>
@@ -31,7 +53,9 @@ export const PublicLayout: React.FC = () => {
                     href="https://github.com/pavlovalor"
                     target="_blank"
                     rel="nofollow">
-                    Github profile
+                      <Trans id="layout.public.footer.menu.items.github-profile">
+                        Github profile
+                      </Trans>
                   </Anchor>
                 </HoverCard.Target>
                 <HoverCard.Dropdown>
@@ -49,7 +73,9 @@ export const PublicLayout: React.FC = () => {
                     href="https://github.com/pavlovalor/oh-my-gram"
                     target="_blank"
                     rel="nofollow">
-                    Curious about the source code
+                    <Trans id="layout.public.footer.menu.items.source-code">
+                      Curious about the source code
+                    </Trans>
                   </Anchor>
                 </HoverCard.Target>
                 <HoverCard.Dropdown>
@@ -61,32 +87,50 @@ export const PublicLayout: React.FC = () => {
                 href="https://pavlo-valor.vercel.app/"
                 target="_blank"
                 rel="nofollow">
-                Look at my portfolio
+                <Trans id="layout.public.footer.menu.items.portfolio">
+                  Look at my portfolio
+                </Trans>
               </Anchor>
 
               <Anchor 
                 component={Link}
                 to="/idea">
-                Idea
+                <Trans id="layout.public.footer.menu.items.idea">
+                  Idea
+                </Trans>
               </Anchor>
 
               <Anchor 
                 component={Link}
                 to="/terms">
-                Terms
+                <Trans id="layout.public.footer.menu.items.terms">
+                  Terms
+                </Trans>
               </Anchor>
               
               <Anchor
                 component={Link}
                 to="/privacy">
-                Privacy
+                <Trans id="layout.public.footer.menu.items.privacy">
+                  Privacy
+                </Trans>
               </Anchor>
 
               <Select
+                disabled={localeContext.isLoading}
+                checkIconPosition="right"
                 variant="unstyled"
-                onSelect={console.log}
-                value={'🏴󠁧󠁢󠁥󠁮󠁧󠁿 English'}
-                data={['🏴󠁧󠁢󠁥󠁮󠁧󠁿 English', '🇺🇦 Ukrainian', '🏳️‍🌈 Muscovian']} />
+                value={localeContext.currentLocale}
+                onChange={handleLocaleSelect}
+                data={availableLanguages.map(l => ({
+                  disabled: false,
+                  label: `${l.flag} ${l.nativeName}`,
+                  value: l.isoCode,
+                })).concat({
+                  disabled: forbiddenAttemptCount === refusalNotificationChain.length,
+                  label: `${fuckingLanguage.flag} ${fuckingLanguage.nativeName}`,
+                  value: fuckingLanguage.isoCode,
+                })} />
             </Group>
 
             <Text size="sm">
@@ -109,7 +153,7 @@ export const PublicLayout: React.FC = () => {
                 </HoverCard.Dropdown>
               </HoverCard>
               &nbsp;completely&nbsp;
-              <Badge color="green">
+              <Badge component="span" color="green">
                 AI-Free
               </Badge>
             </Text>

@@ -1,7 +1,34 @@
+// Core
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react-swc'
+import { lingui as LinguiCorePlugin } from '@lingui/vite-plugin'
 
-// https://vite.dev/config/
+// Extensions
+import { tsConfig2ViteAliasTransfer } from './extensions/tsConfig2ViteAliasTransfer.helper'
+import LinguiAutoCompilePlugin from './extensions/lingui-autocompile.plugin'
+import ReactPlugin from '@vitejs/plugin-react-swc'
+
+// Local
+import { version, author, description } from './package.json'
+import tsconfig from './tsconfig.app.json'
+
+
+/**
+ * @see https://vite.dev/config/
+ */
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    ReactPlugin({ 
+      plugins: [["@lingui/swc-plugin", {}]]
+    }),
+    LinguiCorePlugin(),
+    LinguiAutoCompilePlugin(),
+  ],
+  define: {
+    __APP_DESCRIPTION: JSON.stringify(description),
+    __APP_VERSION__: JSON.stringify(version),
+    __APP_AUTHOR__: JSON.stringify(author),
+  },
+  resolve: {
+    alias: tsConfig2ViteAliasTransfer(tsconfig),
+  },
 })

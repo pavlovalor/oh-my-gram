@@ -10,7 +10,8 @@
     "start:dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lingui:extract": "lingui extract"
   },
   "dependencies": {
     "react": "^19.1.1",
