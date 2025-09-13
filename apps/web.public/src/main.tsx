@@ -25,7 +25,7 @@ ReactDom
   .render(
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
-        <MantineProvider>
+        <MantineProvider defaultColorScheme="auto">
           <LocalesProvider>
             <BrowserRouter>
               <RouteTree />

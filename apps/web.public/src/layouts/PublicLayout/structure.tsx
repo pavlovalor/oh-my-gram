@@ -11,6 +11,7 @@ import { Anchor, AppShell, Badge, Center, Group, Stack, Text, HoverCard, Select 
 import { LocalesContext, LANGUAGES, LOCALES } from '~/locales'
 import { refusalNotificationChain } from './constants'
 import { GithubProfileCard } from './components/GithubProfileCard/structure'
+import { ColorSchemeSwitch } from '~/components/ColorSchemeSwitch'
 import { GithubRepoCard } from './components/GithubRepoCard/structure'
 
 
@@ -42,7 +43,7 @@ export const PublicLayout: React.FC = () => {
       <AppShell.Footer style={{ padding: 16 }}>
         <Center>
           <Stack gap={16} align="center">
-            <Group>
+            <Group justify="center">
               <HoverCard withArrow
                 shadow="md" 
                 width={320} 
@@ -131,6 +132,8 @@ export const PublicLayout: React.FC = () => {
                   label: `${fuckingLanguage.flag} ${fuckingLanguage.nativeName}`,
                   value: fuckingLanguage.isoCode,
                 })} />
+                
+                <ColorSchemeSwitch />
             </Group>
 
             <Text size="sm">
