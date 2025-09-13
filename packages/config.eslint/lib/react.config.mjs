@@ -6,6 +6,7 @@ import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
 import importPlugin from 'eslint-plugin-import';
+import commonRules from './rules/common.rules.mjs'
 
 const compat = new FlatCompat({
   baseDirectory: import.meta.dirname,
@@ -14,12 +15,12 @@ const compat = new FlatCompat({
 
 export default [
   ...compat.extends(),
-
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
+    ignores: ['dist/**/*', 'node_modules'],
     languageOptions: {
       parser: tsParser,
-      parserOptions: { project: './tsconfig.json', sourceType: 'module' }
+      parserOptions: { project: './tsconfig.app.json', sourceType: 'module' }
     },
     plugins: {
       '@typescript-eslint': tsPlugin,
@@ -33,7 +34,8 @@ export default [
       ...tsPlugin.configs.recommended.rules,
       ...reactPlugin.configs.recommended.rules,
       ...reactHooksPlugin.configs.recommended.rules,
-      ...jsxA11yPlugin.configs.recommended.rules
+      ...jsxA11yPlugin.configs.recommended.rules,
+      ...commonRules,
     }
   }
 ];

@@ -1,6 +1,9 @@
 /** @type {import("eslint").Linter.Config} */
 export default {
-  'jsx-quotes': ['error', 'prefer-double'],
+  "jsx-quotes": ['error', 'prefer-double'],
+  "@typescript-eslint/no-unused-vars": ["warn", {
+    "argsIgnorePattern": "^_",
+  }],
   "react-refresh/only-export-components": "warn",
   "react/jsx-indent": ["warn", 2, {
     "indentLogicalExpressions": true,
