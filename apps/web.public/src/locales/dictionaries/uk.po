@@ -15,40 +15,35 @@ msgstr ""
 
 #. js-lingui-explicit-id
 #: src/layouts/PublicLayout/structure.tsx:36
-#~ msgid "fuck1"
-#~ msgstr ""
-
-#. js-lingui-explicit-id
-#: src/layouts/PublicLayout/structure.tsx:36
 #~ msgid "layout.public.footer.menu.github-profile"
-#~ msgstr ""
+#~ msgstr "Github профіль"
 
 #. js-lingui-explicit-id
-#: src/layouts/PublicLayout/structure.tsx:76
+#: src/layouts/PublicLayout/structure.tsx:77
 msgid "layout.public.footer.menu.items.source-code"
-msgstr ""
+msgstr "Вихідний код"
 
 #. js-lingui-explicit-id
-#: src/layouts/PublicLayout/structure.tsx:56
+#: src/layouts/PublicLayout/structure.tsx:57
 msgid "layout.public.footer.menu.items.github-profile"
-msgstr ""
+msgstr "Github профіль"
 
 #. js-lingui-explicit-id
-#: src/layouts/PublicLayout/structure.tsx:98
+#: src/layouts/PublicLayout/structure.tsx:99
 msgid "layout.public.footer.menu.items.idea"
-msgstr ""
+msgstr "Мета проєкту"
 
 #. js-lingui-explicit-id
-#: src/layouts/PublicLayout/structure.tsx:90
+#: src/layouts/PublicLayout/structure.tsx:91
 msgid "layout.public.footer.menu.items.portfolio"
-msgstr ""
+msgstr "Моє портфоліо"
 
 #. js-lingui-explicit-id
-#: src/layouts/PublicLayout/structure.tsx:114
+#: src/layouts/PublicLayout/structure.tsx:115
 msgid "layout.public.footer.menu.items.privacy"
-msgstr ""
+msgstr "Приватність"
 
 #. js-lingui-explicit-id
-#: src/layouts/PublicLayout/structure.tsx:106
+#: src/layouts/PublicLayout/structure.tsx:107
 msgid "layout.public.footer.menu.items.terms"
-msgstr ""
+msgstr "Умови використання"

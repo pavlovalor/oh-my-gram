@@ -5,7 +5,7 @@ import * as React from 'react'
 
 // Local
 import { type Locale } from './iso-codes'
-import { usePersistentState } from '../hooks/usePersistantState'
+import { usePersistentState } from '../hooks/usePersistentState'
 import { loadLocaleData } from './helpers/loadLocaleData'
 
 
