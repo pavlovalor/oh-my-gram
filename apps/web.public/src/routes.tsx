@@ -16,6 +16,7 @@ import { LandingPage } from '~/pages/LandingPage'
 import { SignInPage } from '~/pages/SignInPage'
 import { SignUpPage } from '~/pages/SignUpPage'
 import { ProfileSettingsPage } from '~/pages/ProfileSettingsPage'
+import { CredsRecoveryPage } from './pages/CredsRecoveryPage'
 import { NotFoundPage } from '~/pages/NotFoundPage'
 
 
@@ -27,6 +28,7 @@ export const RouteTree: React.FC = () => (
       <Route element={<AuthLayout />}>
         <Route path="signin" element={<SignInPage />} />
         <Route path="signup" element={<SignUpPage />} />
+        <Route path="recovery" element={<CredsRecoveryPage />} />
       </Route>
     </Route>
 

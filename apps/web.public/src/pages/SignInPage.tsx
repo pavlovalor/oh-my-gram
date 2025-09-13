@@ -1,9 +1,10 @@
 import { Divider, Stack, TextInput, Button, Group, ActionIcon, Loader } from '@mantine/core'
-import { IconAsterisk, IconEyeClosed, IconEye, IconFingerprint, IconUser } from '@tabler/icons-react'
+import { IconAsterisk, IconEyeClosed, IconEye, IconFingerprint, IconUser, IconBrandGoogle } from '@tabler/icons-react'
 import { zodResolver } from 'mantine-form-zod-resolver'
 import { useForm } from '@mantine/form'
 import * as React from 'react'
 import * as zod from 'zod'
+import { Link } from 'react-router'
 
 
 const CredsSchema = zod.object({
@@ -83,17 +84,19 @@ export const SignInPage: React.FC = () => {
       </form>
       <Divider label="OR" labelPosition="center" />
       <Stack>
-        <Button variant="outline"
+        <Button
+          variant="outline"
+          leftSection={<IconBrandGoogle />}
           disabled={isSubmittingForm}>
           Log in with Google
         </Button>
       </Stack>
 
       <Stack gap={0}>
-        <Button variant="subtle">
-          I already have an account
+        <Button component={Link} variant="subtle" to="/signup">
+          I don&apos;t have an account
         </Button>
-        <Button variant="subtle">
+        <Button component={Link} variant="subtle" to="/recovery">
           Can&apos;t remember my password
         </Button>
       </Stack>
