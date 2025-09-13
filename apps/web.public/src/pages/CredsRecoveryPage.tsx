@@ -1,5 +1,5 @@
-import { Divider, Stack, TextInput, Button, Group, ActionIcon, Loader, Text } from '@mantine/core'
-import { IconFingerprint, IconUser, IconBrandGoogle } from '@tabler/icons-react'
+import { Divider, Stack, TextInput, Button, Loader, Text } from '@mantine/core'
+import { IconUser, IconBrandGoogle } from '@tabler/icons-react'
 import { zodResolver } from 'mantine-form-zod-resolver'
 import { useForm } from '@mantine/form'
 import * as React from 'react'
@@ -13,7 +13,6 @@ const CredsSchema = zod.object({
 
 
 export const CredsRecoveryPage: React.FC = () => {
-  const [isPasswordVisible, setPasswordState] = React.useState(false)
   const [isSubmittingForm, setFormIndicator] = React.useState(false)
 
   const form = useForm({
