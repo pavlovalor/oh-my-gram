@@ -1,0 +1,32 @@
+{
+  "name": "@omg/contracts-registry",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Collection of all endpoints and associated schemas/instructions",
+  "main": "dist/index.js",
+  "types": "lib/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "start:dev": "tsc --watch",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "keywords": [
+    "utils",
+    "zod"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@nestjs/config": "^4.0.2",
+    "@omg/utils-module": "workspace:*",
+    "cli-color": "^2.0.4",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "@omg/eslint-config": "workspace:*",
+    "@types/cli-color": "^2.0.6",
+    "eslint": "^9.0.0",
+    "typescript-eslint": "^8.0.0"
+  }
+}
