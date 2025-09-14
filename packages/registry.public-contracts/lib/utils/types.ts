@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ZodSchema } from 'zod'
+import { type AxiosRequestConfig, type AxiosResponse } from 'axios'
+import { IssueResponse } from '../common'
 
 export type UnionToTuple<$Union> = UnionToTupleHelper<$Union, []>;
 type UnionToTupleHelper<$Union, $Rest extends any[]> = {
@@ -18,3 +19,25 @@ export interface HistoryRecord {
 }
 
 type HTTPMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+
+
+export interface OmgResponseMeta {
+  meta: {
+    status: number,
+    headers: object,
+    config: AxiosRequestConfig,
+  }
+}
+
+export interface OmgResolvedPayload<$Data> {
+  isResolved: true,
+  payload: $Data,
+}
+
+export interface OmgRejectedPayload {
+  isResolved: false,
+  payload: IssueResponse,
+}
+
+export type OmgResponse<$Data> = OmgResponseMeta
+  & (OmgRejectedPayload | OmgResolvedPayload<$Data>)

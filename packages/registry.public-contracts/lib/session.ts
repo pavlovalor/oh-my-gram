@@ -64,8 +64,11 @@ export class SessionManager {
    * @returns A promise that resolves when the sign-in process is complete.
    */
   public async signIn(credentials: Auth.Credentials): Promise<void> {
-    const { response } = await this.client.auth.signIn(credentials)
-    this.consumeTokenPair(response)
+    const response = await this.client.auth.signIn(credentials)
+
+    if (!response.isResolved) throw Error('Failed to sign in')
+
+    this.consumeTokenPair(response.payload)
 
     /** Includes Authorization header with access token from the store */
     this.agentAuthHeaderInterceptorId = this.client.agent.interceptors.request.use(
@@ -126,8 +129,9 @@ export class SessionManager {
     const state = this.store.getState()
     if (!state?.refreshToken) throw new Error('Unable to refresh session. No refresh token present')
 
-    const { response } = await this.client.auth.getNextTokenPair(state.refreshToken)
-    this.consumeTokenPair(response)
+    const response = await this.client.auth.getNextTokenPair(state.refreshToken)
+    if (response.isResolved) this.consumeTokenPair(response.payload)
+    else throw new Error('Unable to refresh session')
   }
 
   /**
@@ -137,7 +141,7 @@ export class SessionManager {
    * @returns A promise that resolves when the sign-out process is complete.
    */
   public async signOut(): Promise<void> {
-    await this.client.auth.signOut()
+    // await this.client.auth.signOut()
     this.store.setState(null)
 
     /** Patching client to use linked Authorization header */

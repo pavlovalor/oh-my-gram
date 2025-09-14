@@ -696,6 +696,9 @@ importers:
       '@omg/eslint-config':
         specifier: workspace:*
         version: link:../../packages/config.eslint
+      '@omg/public-contracts-registry':
+        specifier: workspace:*
+        version: link:../../packages/registry.public-contracts
       '@types/react':
         specifier: ^19.1.10
         version: 19.1.12

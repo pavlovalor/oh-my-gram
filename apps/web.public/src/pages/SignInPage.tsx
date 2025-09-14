@@ -1,16 +1,12 @@
 import { Divider, Stack, TextInput, Button, Group, ActionIcon, Loader } from '@mantine/core'
 import { IconAsterisk, IconEyeClosed, IconEye, IconFingerprint, IconUser, IconBrandGoogle } from '@tabler/icons-react'
+import { SignInWithCredentialsRequestSchema, type Credentials } from '@omg/public-contracts-registry'
 import { zodResolver } from 'mantine-form-zod-resolver'
+import { omgClient } from '~/client'
 import { useForm } from '@mantine/form'
-import * as React from 'react'
-import * as zod from 'zod'
 import { Link } from 'react-router'
-
-
-const CredsSchema = zod.object({
-  login: zod.string().min(6),
-  password: zod.string().min(6),
-})
+import * as React from 'react'
+import { notifications } from '@mantine/notifications'
 
 
 export const SignInPage: React.FC = () => {
@@ -18,16 +14,35 @@ export const SignInPage: React.FC = () => {
   const [isSubmittingForm, setFormIndicator] = React.useState(false)
 
   const form = useForm({
-    initialValues: { login: '', password: '' },
-    validate: zodResolver(CredsSchema),
+    initialValues: { login: '', password: '' } satisfies Credentials,
+    validate: zodResolver(SignInWithCredentialsRequestSchema),
     validateInputOnBlur: true,
   })
 
-  const handleSubmit = React.useCallback(async (values: any) => {
+  const handleSubmit = React.useCallback((values: Credentials) => {
     setFormIndicator(true)
-    await new Promise(r => setTimeout(r, 3000))
-    setFormIndicator(false)
-  }, [])
+    omgClient.auth.signIn(values)
+      .then(response => {
+        if (response.isResolved) {
+          // TODO
+        } else {
+          form.setErrors({
+            login: response.payload.message,
+            password: response.payload.reason,
+          })
+        }
+      })
+      .catch(() => {
+        notifications.show({
+          title: 'Oops! Something got wrong',
+          message: 'It looks like something is wrong with you network',
+          color: 'red',
+        })
+      })
+      .finally(() => {
+        setFormIndicator(false)
+      })
+  }, [form])
 
   return (
     <Stack gap="xl" style={{ width: 350 }}>

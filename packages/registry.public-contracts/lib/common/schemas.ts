@@ -23,10 +23,10 @@ export const PaginationSchema = zod.object({
 }).partial()
 
 export const IssueSchema = zod.object({
-  code: zod.string(),
+  code: zod.number(),
   message: zod.string(),
   reason: zod.string().optional(),
-  meta: zod.object({}).optional(),
+  meta: zod.record(zod.unknown()).optional(),
 })
 
 

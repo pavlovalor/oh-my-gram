@@ -11,6 +11,7 @@ import '@mantine/core/styles.css'
 import '@mantine/notifications/styles.css'
 
 // Local
+import { OmgClientProvider } from '~/client'
 import { LocalesProvider } from '~/locales'
 import { RouteTree } from '~/routes'
 
@@ -25,15 +26,17 @@ ReactDom
   })
   .render(
     <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <MantineProvider defaultColorScheme="auto">
-          <LocalesProvider>
-            <BrowserRouter>
-              <RouteTree />
-            </BrowserRouter>
-            <Notifications />
-          </LocalesProvider>
-        </MantineProvider>
-      </QueryClientProvider>
+      <OmgClientProvider>
+        <QueryClientProvider client={queryClient}>
+          <MantineProvider defaultColorScheme="auto">
+            <LocalesProvider>
+              <BrowserRouter>
+                <RouteTree />
+              </BrowserRouter>
+              <Notifications />
+            </LocalesProvider>
+          </MantineProvider>
+        </QueryClientProvider>
+      </OmgClientProvider>
     </React.StrictMode>
   )

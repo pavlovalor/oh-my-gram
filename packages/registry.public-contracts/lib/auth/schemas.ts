@@ -36,7 +36,7 @@ export const AccessTokenPayloadSchema = zod.object({
 export const CredentialsSchema = zod.object({
   password: zod.string().min(8).max(64),
   login: zod.union([
-    zod.string().regex(/^\+\d{7,15}$/, 'use E.164 format like +380771234567'),
+    zod.string().regex(/^\+\d{7,15}$/, 'Use E.164 format like +380771234567'),
     zod.string().email(),
   ]).describe('Email of phone number'),
 })

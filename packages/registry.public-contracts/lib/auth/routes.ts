@@ -1,4 +1,4 @@
-import { alignResponse } from '../utils'
+import { alignResponse, OmgResponse } from '../utils'
 import { type OmgClient, type OmgRequestOptions } from '../client'
 import * as Types from './types'
 
@@ -10,28 +10,29 @@ export class AuthRoutes {
     credentials: Types.Credentials,
     options?: OmgRequestOptions,
   ) => this.client.agent
-    .post<Types.TokenPairResponse>('/auth/sign-up', credentials, options)
-    .then(alignResponse)
+    .post('/auth/sign-up', credentials, options)
+    .then(...alignResponse) as Promise<OmgResponse<Types.TokenPairResponse>>
 
   public signIn = (
     credentials: Types.Credentials,
     options?: OmgRequestOptions,
   ) => this.client.agent
-    .post<Types.TokenPairResponse>('/auth/sign-in', credentials, options)
-    .then(alignResponse)
+    .post('/auth/sign-in', credentials, options)
+    .then(...alignResponse) as Promise<OmgResponse<Types.TokenPairResponse>>
 
 
   public getNextTokenPair = (
     refreshToken: Types.RefreshToken,
     options?: OmgRequestOptions,
   ) => this.client.agent
-    .post<Types.TokenPairResponse>('/auth/refresh', refreshToken, options)
-    .then(alignResponse)
+    .post('/auth/refresh', refreshToken, options)
+    .then(...alignResponse) as Promise<OmgResponse<Types.TokenPairResponse>>
 
 
-  public signOut = (
-    options?: OmgRequestOptions,
-  ) => this.client.agent
-    .get('/auth/sign-out', options)
-    .then(alignResponse)
+  // TODO
+  // public signOut = (
+  //   options?: OmgRequestOptions,
+  // ) => this.client.agent
+  //   .get('/auth/sign-out', options)
+  //   .then(...alignResponse)
 }
