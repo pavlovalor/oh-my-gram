@@ -91,19 +91,19 @@ flowchart LR
 ```
 root/
 ├─ apps/
-│  ├─ gateways/      # HTTP/WS entry points
-│  └─ services/
-│     ├─ chat/
-│     ├─ feed/
-│     └─ ...
-├─ packages/
-│  ├─ auth/          # authentication module
-│  ├─ schemas/       # validation schemas
-│  ├─ eslint-config/
+│  ├─ gateway.public-http/        # HTTP entry points
+│  ├─ gateway.public-ws/          # WS entry point for user application
+│  ├─ service.identity/           # manages identity-related data
+│  ├─ web.public/                 # public react js app
 │  └─ ...
-├─ infra/
-│  ├─ docker/
-│  └─ helm/
+├─ packages/
+│  ├─ config.eslint/              # holds different eslint configs and rulesets
+│  ├─ config.typescript/          # holds basic tsconfig settings
+│  ├─ module.authn/               # authentication module
+│  ├─ schema.identity-postgres/   # database schema for the identity core + worker service group
+│  ├─ schema.profile-postgres/    # database schema for the profile service group
+│  └─ ...
+├─ docker/
 └─ scripts/
 ```
 
@@ -116,10 +116,10 @@ root/
 pnpm install
 
 # 2. Spin up infrastructure
-cd infra/docker && docker compose up -d
+pnpm run docker:start
 
 # 3. Start all services & frontend
-pnpm nx run-many --target=serve --all
+pnpm run dev
 ```
 
 Navigate to `http://localhost:8080` for the React UI.
