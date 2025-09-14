@@ -90,7 +90,6 @@ export class AuthController {
     return new RefreshSessionCommand(dto, { identityId: auth.identityId })
       .executeVia(this.natsClient)
       .catch(filterException([NoSessionFoundException], exception => {
-        console.log('FUUUUCK')
         throw new BadRequestException(exception.getError())
       }))
   }

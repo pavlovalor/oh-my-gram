@@ -1,12 +1,25 @@
 {
-  "name": "@omg/contracts-registry",
+  "name": "@omg/public-contracts-registry",
   "private": true,
   "version": "0.0.0",
   "description": "Collection of all endpoints and associated schemas/instructions",
-  "main": "dist/index.js",
-  "types": "lib/index.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./lib/index.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./*": {
+      "types": "./lib/*.ts",
+      "import": "./dist/esm/*.js",
+      "require": "./dist/cjs/*.js"
+    }
+  },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json",
     "start:dev": "tsc --watch",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"

@@ -26,6 +26,7 @@
     "@omg/environment-module": "workspace:*",
     "@omg/eslint-config": "workspace:*",
     "@omg/message-registry": "workspace:*",
+    "@omg/public-contracts-registry": "workspace:*",
     "@omg/utils-module": "workspace:*",
     "@omg/authz-module": "workspace:*",
     "cli-color": "^2.0.4",
