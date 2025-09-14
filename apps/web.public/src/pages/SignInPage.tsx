@@ -1,31 +1,47 @@
-import { Divider, Stack, TextInput, Button, Group, ActionIcon, Loader } from '@mantine/core'
-import { IconAsterisk, IconEyeClosed, IconEye, IconFingerprint, IconUser, IconBrandGoogle } from '@tabler/icons-react'
+import { Divider, Stack, TextInput, Button, Group, ActionIcon, Loader, Tooltip } from '@mantine/core'
+import { IconAsterisk, IconEyeClosed, IconEye, IconFingerprint, IconUser, IconBrandGoogle, IconAt, IconPhone } from '@tabler/icons-react'
 import { SignInWithCredentialsRequestSchema, type Credentials } from '@omg/public-contracts-registry'
+import { notifications } from '@mantine/notifications'
 import { zodResolver } from 'mantine-form-zod-resolver'
 import { omgClient } from '~/client'
 import { useForm } from '@mantine/form'
 import { Link } from 'react-router'
 import * as React from 'react'
-import { notifications } from '@mantine/notifications'
 
 
 export const SignInPage: React.FC = () => {
   const [isPasswordVisible, setPasswordState] = React.useState(false)
   const [isSubmittingForm, setFormIndicator] = React.useState(false)
+  const [isSubmitDisabled, setSubmitState] = React.useState(false)
 
   const form = useForm({
     initialValues: { login: '', password: '' } satisfies Credentials,
     validate: zodResolver(SignInWithCredentialsRequestSchema),
+    onValuesChange: () => setSubmitState(false),
     validateInputOnBlur: true,
   })
 
+  const loginInput = React.useMemo(() => {
+    const value = form.values.login
+    const isEmail = !value.match(/^\d/) || value.includes('@')
+    const isEmpty = !value.length
+
+    if (isEmpty) return { type: 'text', icon: <IconUser /> }
+    if (isEmail) return { type: 'email', icon: <IconAt /> }
+    return { type: 'tel', icon: <IconPhone /> }
+  }, [form.values.login])
+
   const handleSubmit = React.useCallback((values: Credentials) => {
     setFormIndicator(true)
-    omgClient.auth.signIn(values)
-      .then(response => {
+    Promise.all([
+      omgClient.auth.signIn(values),
+      new Promise(r => setTimeout(r, 1000)),
+    ])
+      .then(([response]) => {
         if (response.isResolved) {
-          // TODO
+        // TODO
         } else {
+          setSubmitState(true)
           form.setErrors({
             login: response.payload.message,
             password: response.payload.reason,
@@ -48,16 +64,16 @@ export const SignInPage: React.FC = () => {
     <Stack gap="xl" style={{ width: 350 }}>
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack>
-          <TextInput
-            {...form.getInputProps('login')}
+          <TextInput {...form.getInputProps('login')}
+            aria-required
             name="login"
+            type={loginInput.type}
             disabled={isSubmittingForm}
             placeholder="Email or phone number..."
-            aria-required
-            leftSection={<IconUser />} />
+            leftSection={loginInput.icon} />
 
-          <TextInput
-            {...form.getInputProps('password')}
+          <TextInput {...form.getInputProps('password')}
+            aria-required
             name="password"
             disabled={isSubmittingForm}
             type={isPasswordVisible ? 'text' : 'password'}
@@ -72,27 +88,24 @@ export const SignInPage: React.FC = () => {
             } />
 
           <Group>
-            <ActionIcon
-              size="input-sm"
-              disabled={isSubmittingForm}>
-              <IconFingerprint />
-            </ActionIcon>
+            <Tooltip color="gray" label="Use biometric data to sign in">
+              <ActionIcon
+                size="input-sm"
+                disabled={isSubmittingForm}>
+                {isSubmittingForm ? <Loader size="sm" /> : <IconFingerprint />}
+              </ActionIcon>
+            </Tooltip>
 
             <Button
               type="submit"
-              disabled={isSubmittingForm}
+              disabled={isSubmittingForm || isSubmitDisabled}
               variant="gradient"
               style={{ flexGrow: 1 }}>
-              {isSubmittingForm ? (
-                <React.Fragment>
-                  <Loader variant="" mr="md" size="sm" />
-                  Opening new session...
-                </React.Fragment>
-              ) : (
-                <React.Fragment>
-                  Sign in
-                </React.Fragment>
-              )}
+              {isSubmittingForm
+                ? 'Opening new session...'
+                : isSubmitDisabled
+                  ? 'Update input'
+                  : 'Sign in'}
             </Button>
           </Group>
         </Stack>

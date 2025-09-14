@@ -1,29 +1,34 @@
-import { Divider, Stack, TextInput, Button, Group, ActionIcon, Loader } from '@mantine/core'
-import { IconAsterisk, IconEyeClosed, IconEye, IconFingerprint, IconUser, IconBrandGoogle } from '@tabler/icons-react'
+import { Divider, Stack, TextInput, Button, Group, ActionIcon, Loader, Tooltip } from '@mantine/core'
+import { IconAsterisk, IconEyeClosed, IconEye, IconFingerprint, IconUser, IconBrandGoogle, IconAt, IconPhone } from '@tabler/icons-react'
+import { SignUpWithCredentialsRequestSchema, type Credentials } from '@omg/public-contracts-registry'
 import { zodResolver } from 'mantine-form-zod-resolver'
 import { useForm } from '@mantine/form'
-import * as React from 'react'
-import * as zod from 'zod'
 import { Link } from 'react-router'
-
-
-const CredsSchema = zod.object({
-  login: zod.string().min(6),
-  password: zod.string().min(6),
-})
+import * as React from 'react'
 
 
 export const SignUpPage: React.FC = () => {
   const [isPasswordVisible, setPasswordState] = React.useState(false)
   const [isSubmittingForm, setFormIndicator] = React.useState(false)
+  const [isSubmitDisabled, setSubmitState] = React.useState(false)
 
   const form = useForm({
-    initialValues: { login: '', password: '' },
-    validate: zodResolver(CredsSchema),
+    initialValues: { login: '', password: '' } satisfies Credentials,
+    validate: zodResolver(SignUpWithCredentialsRequestSchema),
     validateInputOnBlur: true,
   })
 
-  const handleSubmit = React.useCallback(async (values: any) => {
+  const loginInput = React.useMemo(() => {
+    const value = form.values.login
+    const isEmail = !value.match(/^(\d|\+)/) || value.includes('@')
+    const isEmpty = !value.length
+
+    if (isEmpty) return { type: 'text', icon: <IconUser /> }
+    if (isEmail) return { type: 'email', icon: <IconAt /> }
+    return { type: 'tel', icon: <IconPhone /> }
+  }, [form.values.login])
+
+  const handleSubmit = React.useCallback(async (values: Credentials) => {
     setFormIndicator(true)
     await new Promise(r => setTimeout(r, 3000))
     setFormIndicator(false)
@@ -36,10 +41,11 @@ export const SignUpPage: React.FC = () => {
           <TextInput
             {...form.getInputProps('login')}
             name="login"
+            type={loginInput.type}
             disabled={isSubmittingForm}
             placeholder="Email or phone number..."
             aria-required
-            leftSection={<IconUser />} />
+            leftSection={loginInput.icon} />
 
           <TextInput
             {...form.getInputProps('password')}
@@ -57,12 +63,14 @@ export const SignUpPage: React.FC = () => {
             } />
 
           <Group>
-            <ActionIcon
-              size="input-sm"
-              color="teal"
-              disabled={isSubmittingForm}>
-              <IconFingerprint />
-            </ActionIcon>
+            <Tooltip color="gray" label="Use biometric data to sign in">
+              <ActionIcon
+                size="input-sm"
+                color="teal"
+                disabled={isSubmittingForm}>
+                {isSubmittingForm ? <Loader variant="" mr="md" size="sm" /> : <IconFingerprint />}
+              </ActionIcon>
+            </Tooltip>
 
             <Button
               type="submit"
@@ -70,16 +78,9 @@ export const SignUpPage: React.FC = () => {
               color="teal"
               variant="filled"
               style={{ flexGrow: 1 }}>
-              {isSubmittingForm ? (
-                <React.Fragment>
-                  <Loader variant="" mr="md" size="sm" />
-                  Creating another account...
-                </React.Fragment>
-              ) : (
-                <React.Fragment>
-                  Sign up
-                </React.Fragment>
-              )}
+              {isSubmittingForm
+                ? 'Creating another account...'
+                : 'Sign up'}
             </Button>
           </Group>
         </Stack>
