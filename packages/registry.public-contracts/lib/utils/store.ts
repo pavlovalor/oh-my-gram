@@ -1,6 +1,3 @@
-import { AnyFunction } from './types'
-
-
 /** Configuration object for persisting the state */
 export interface PersistenceConfig {
   /** The storage mechanism (e.g., localStorage or sessionStorage). */
@@ -32,8 +29,8 @@ interface StateObject<$State extends object | null> {
  *
  * @template $State - The type of the state, which can be an object or null.
  */
-export class Store<$State extends object | null> {
-  private readonly listeners: Set<AnyFunction>
+export class Store<$State extends object | null, $Listener = (state: $State) => void> {
+  private readonly listeners: Set<$Listener>
   private state: $State
 
   /**
@@ -54,7 +51,7 @@ export class Store<$State extends object | null> {
 
     // If the extracted state is valid, use it; otherwise, fall back to the initial state.
     this.state = isValidExtractedState ? extractedState!.data : initialState
-    this.listeners = new Set<AnyFunction>()
+    this.listeners = new Set()
   }
 
 
@@ -64,7 +61,7 @@ export class Store<$State extends object | null> {
    * @param listener - The listener function to be called when the state changes.
    * @returns A function to unsubscribe the listener.
    */
-  public subscribe(listener: AnyFunction): () => void {
+  public subscribe(listener: $Listener): () => void {
     this.listeners.add(listener)
     return () => this.listeners.delete(listener)
   }
@@ -75,7 +72,7 @@ export class Store<$State extends object | null> {
    *
    * @param listener - The listener function to be removed from the subscription.
    */
-  public unsubscribe(listener: AnyFunction): void {
+  public unsubscribe(listener: $Listener): void {
     this.listeners.delete(listener)
   }
 
@@ -136,6 +133,8 @@ export class Store<$State extends object | null> {
    * This method calls each listener function in the listeners set.
    */
   private notifyListeners(): void {
-    this.listeners.forEach(Function.prototype.call)
+    const state = this.getState()
+
+    this.listeners.forEach((listener: any) => listener(state))
   }
 }

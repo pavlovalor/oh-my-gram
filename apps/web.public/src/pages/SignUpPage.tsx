@@ -5,12 +5,17 @@ import { zodResolver } from 'mantine-form-zod-resolver'
 import { useForm } from '@mantine/form'
 import { Link } from 'react-router'
 import * as React from 'react'
+import { delay } from '~/utils'
+import { useOmgSession } from '~/client'
 
 
 export const SignUpPage: React.FC = () => {
   const [isPasswordVisible, setPasswordState] = React.useState(false)
   const [isSubmittingForm, setFormIndicator] = React.useState(false)
   const [isSubmitDisabled, setSubmitState] = React.useState(false)
+  const [sessionState, sessionActions] = useOmgSession()
+
+  console.log({ ...sessionState })
 
   const form = useForm({
     initialValues: { login: '', password: '' } satisfies Credentials,
@@ -30,9 +35,12 @@ export const SignUpPage: React.FC = () => {
 
   const handleSubmit = React.useCallback(async (values: Credentials) => {
     setFormIndicator(true)
-    await new Promise(r => setTimeout(r, 3000))
+    await Promise.all([
+      delay(.5, 'seconds'),
+      sessionActions.signUp(values),
+    ])
     setFormIndicator(false)
-  }, [])
+  }, [sessionActions])
 
   return (
     <Stack gap="xl" style={{ width: 350 }}>

@@ -3,10 +3,10 @@ import * as Auth from './auth'
 import { IssueSchema } from './common/schemas'
 import { Store } from './utils/store'
 import { type OmgClient } from './client'
-import { type AxiosError } from 'axios'
+import { type InternalAxiosRequestConfig, type AxiosError } from 'axios'
 
 
-const RETRY_FLAG = '__retry'
+const RETRY_FLAG = Symbol('Request retry indicator')
 
 /**
  * Represents the session state, including authentication tokens, user permissions,
@@ -28,12 +28,11 @@ export interface SessionState {
  */
 export class SessionManager {
   private store: Store<SessionState | null>
-  private agentAuthHeaderInterceptorId: number | null = null
-  private agent401RetryInterceptorId: number | null = null
+  private interceptorPairId: number | null = null
 
-  get subscribe() { return this.store.subscribe }
+  get subscribe() { return this.store.subscribe.bind(this.store) }
 
-  get getState() { return this.store.getState }
+  get getState() { return this.store.getState.bind(this.store) }
 
   /**
    * Creates an instance of the SessionManager.
@@ -65,58 +64,26 @@ export class SessionManager {
    */
   public async signIn(credentials: Auth.Credentials): Promise<void> {
     const response = await this.client.auth.signIn(credentials)
-
     if (!response.isResolved) throw Error('Failed to sign in')
 
     this.consumeTokenPair(response.payload)
+    this.applyInterceptors()
+  }
 
-    /** Includes Authorization header with access token from the store */
-    this.agentAuthHeaderInterceptorId = this.client.agent.interceptors.request.use(
-      config => {
-        const { accessToken } = this.store.getState() ?? {}
-        const isSignInRequest = config.url?.includes('sign-in')
-        const isRetryAttempt = config[RETRY_FLAG as never]
+  /**
+   * Signs up the user in with the provided credentials, consumes the token pair
+   * from the response, and configures the client to include the access token
+   * in subsequent requests.
+   *
+   * @param credentials - The credentials to authenticate the user.
+   * @returns A promise that resolves when the sign-in process is complete.
+   */
+  public async signUp(credentials: Auth.Credentials): Promise<void> {
+    const response = await this.client.auth.signUp(credentials)
+    if (!response.isResolved) throw Error('Failed to sign up')
 
-        if (accessToken && !isRetryAttempt && !isSignInRequest)
-          config.headers['Authorization'] = `Bearer ${accessToken}`
-
-        return config
-      },
-      Promise.reject,
-    )
-
-    /** If 401 received, attempts to refresh session and try again */
-    this.agent401RetryInterceptorId = this.client.agent.interceptors.response.use(
-      Promise.resolve,
-      async (error: AxiosError) => {
-        const isUnauthorizedCode = error.response?.status === 401
-        const isAuthzRoute = error.config?.url?.includes('/authz/')
-        const originalRequest = error.config!
-
-        /** Early exit, irrelevant response/route */
-        if (!isUnauthorizedCode || isAuthzRoute) return error
-
-        /** Parsing response shape */
-        const parsedErrorState = await IssueSchema.safeParseAsync(error.response?.data)
-
-        /** Terminate session if there is no clear reason */
-        if (!parsedErrorState.success || !parsedErrorState.data.reason || parsedErrorState.data?.reason === 'Unknown')
-          return this.store.setState(null)
-
-        /** Refresh session and retry otherwise */
-        try {
-          const { accessToken } = this.store.getState() ?? {}
-
-          ;(originalRequest as any)[RETRY_FLAG] = true
-          originalRequest.headers.Authorization = `Bearer ${accessToken}`
-
-          return this.client.agent(originalRequest)
-        } catch (refreshError: unknown) {
-          console.log('RefreshError', refreshError)
-        }
-
-        return this.store.setState(null)
-      })
+    this.consumeTokenPair(response.payload)
+    this.applyInterceptors()
   }
 
   /**
@@ -145,8 +112,7 @@ export class SessionManager {
     this.store.setState(null)
 
     /** Patching client to use linked Authorization header */
-    this.client.agent.interceptors.request.eject(this.agentAuthHeaderInterceptorId!)
-    this.client.agent.interceptors.request.eject(this.agent401RetryInterceptorId!)
+    this.client.agent.interceptors.request.eject(this.interceptorPairId!)
   }
 
 
@@ -157,7 +123,8 @@ export class SessionManager {
    * @param tokenPair - The pair of tokens (refresh and access) to be consumed.
    */
   private consumeTokenPair(tokenPair: Auth.TokenPairResponse): void {
-    const accessTokenPayload: Auth.AccessTokenPayload = JSON.parse(tokenPair.accessToken.value.split('.')[1]!)
+    const accessTokenBody = atob(tokenPair.accessToken.value.split('.')[1]!)
+    const accessTokenPayload: Auth.AccessTokenPayload = JSON.parse(accessTokenBody)
     this.store.setState({
       refreshToken: tokenPair.refreshToken,
       accessToken: tokenPair.accessToken,
@@ -167,5 +134,58 @@ export class SessionManager {
       identityId: accessTokenPayload.uid,
       sessionId: accessTokenPayload.sid,
     })
+  }
+
+
+  /** Includes Authorization header with access token from the store */
+  protected includeAuthHeadersInterceptor = (config: InternalAxiosRequestConfig<unknown>) => {
+    const { accessToken } = this.store.getState() ?? {}
+    const isSignInRequest = config.url?.includes('sign-in')
+    const isRetryAttempt = config[RETRY_FLAG as never]
+
+    if (accessToken && !isRetryAttempt && !isSignInRequest)
+      config.headers['Authorization'] = `Bearer ${accessToken}`
+
+    return config
+  }
+
+
+  /** If 401 received, attempts to refreshes session and tries again */
+  protected sessionRefreshInterceptor = (error: AxiosError) => {
+    const isUnauthorizedCode = error.response?.status === 401
+    const isAuthzRoute = error.config?.url?.includes('/authz/')
+    const originalRequest = error.config!
+
+    /** Early exit, irrelevant response/route */
+    if (!isUnauthorizedCode || isAuthzRoute) return error
+
+    /** Parsing response shape */
+    const parsedErrorState = IssueSchema.safeParse(error.response?.data)
+
+    /** Terminate session if there is no clear reason */
+    if (!parsedErrorState.success || !parsedErrorState.data.reason || parsedErrorState.data?.reason === 'Unknown')
+      return this.store.setState(null)
+
+    /** Refresh session and retry otherwise */
+    try {
+      const { accessToken } = this.store.getState() ?? {}
+
+      ;(originalRequest as any)[RETRY_FLAG] = true
+      originalRequest.headers.Authorization = `Bearer ${accessToken}`
+
+      return this.client.agent(originalRequest)
+    } catch (refreshError: unknown) {
+      console.warn('RefreshError', refreshError)
+    }
+
+    return this.store.setState(null)
+  }
+
+
+  private applyInterceptors() {
+    this.interceptorPairId = this.client.agent.interceptors.request.use(
+      this.includeAuthHeadersInterceptor,
+      this.sessionRefreshInterceptor,
+    )
   }
 }
