@@ -25,6 +25,7 @@
  */
 import { varchar, timestamp, uuid, boolean, date, foreignKey, pgSchema, inet } from 'drizzle-orm/pg-core'
 import { sql, relations } from 'drizzle-orm'
+import { jsonb } from 'drizzle-orm/pg-core'
 
 
 export const coreSchema = pgSchema('core')
@@ -36,6 +37,13 @@ export const applicationType = authSchema.enum('application_type', [
   'web',
   'mobile',
   'desktop',
+])
+
+/** Challenge types */
+export const challengeType = coreSchema.enum('challenge_type', [
+  'profile.create',
+  'profile.update',
+  'settings.update',
 ])
 
 
@@ -54,6 +62,7 @@ export const identityRelations = relations(identityTable, connect => ({
   recentEmails: connect.many(emailTable),
   recentPasswordHashes: connect.many(passwordHashTable),
   recentPhoneNumbers: connect.many(phoneNumberTable),
+  challenges: connect.many(challengeTable),
   sessions: connect.many(sessionTable),
 }))
 
@@ -128,6 +137,32 @@ export const passwordHashTable = coreSchema.table('password', {
 export const passwordHashRelations = relations(passwordHashTable, connect => ({
   identity: connect.one(identityTable, {
     fields: [passwordHashTable.identityId],
+    references: [identityTable.id],
+  }),
+}))
+
+
+/**
+ * Stores system-initiated change requests
+ */
+export const challengeTable = coreSchema.table('challenge', {
+  id: uuid().primaryKey().defaultRandom(),
+  createdAt: timestamp().defaultNow(),
+  type: challengeType(),
+  details: jsonb(),
+  isOptional: boolean(),
+  isPersistent: boolean(),
+  identityId: uuid().notNull(),
+}, currentTable => ({
+  identityReference: foreignKey({
+    columns: [currentTable.identityId],
+    foreignColumns: [identityTable.id],
+  }),
+}))
+
+export const challengeRelations = relations(challengeTable, connect => ({
+  identity: connect.one(identityTable, {
+    fields: [challengeTable.identityId],
     references: [identityTable.id],
   }),
 }))
