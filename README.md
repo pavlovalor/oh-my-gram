@@ -1,5 +1,11 @@
 # Skill Showcase – Instagram‑Style Social Platform
 
+![GitHub repo size](https://img.shields.io/github/repo-size/pavlovalor/oh-my-gram)
+![GitHub package.json dev/peer/optional dependency version](https://img.shields.io/github/package-json/dependency-version/pavlovalor/oh-my-gram/dev/typescript)
+![GitHub Created At](https://img.shields.io/github/created-at/pavlovalor/oh-my-gram)
+![GitHub last commit](https://img.shields.io/github/last-commit/pavlovalor/oh-my-gram)
+
+
 A full‑stack, microservice‑oriented clone of Instagram that demonstrates modern engineering skills and tooling. The project delivers a minimal yet complete social‑media experience – feeds, stories, chat, subscriptions, search and recommendations – while showcasing production‑grade patterns such as event‑driven architecture, CQRS, polyglot persistence and a monorepo workflow.
 
 ---
