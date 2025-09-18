@@ -2,10 +2,11 @@ import { Divider, Stack, TextInput, Button, Group, ActionIcon, Loader, Tooltip }
 import { IconAsterisk, IconEyeClosed, IconEye, IconFingerprint, IconUser, IconBrandGoogle, IconAt, IconPhone } from '@tabler/icons-react'
 import { SignInWithCredentialsRequestSchema, type Credentials } from '@omg/public-contracts-registry'
 import { notifications } from '@mantine/notifications'
+import { useOmgSession } from '~/client'
 import { zodResolver } from 'mantine-form-zod-resolver'
-import { omgClient } from '~/client'
 import { useForm } from '@mantine/form'
-import { Link } from 'react-router'
+import { delay } from '~/utils'
+import { Link, useNavigate } from 'react-router'
 import * as React from 'react'
 
 
@@ -13,6 +14,10 @@ export const SignInPage: React.FC = () => {
   const [isPasswordVisible, setPasswordState] = React.useState(false)
   const [isSubmittingForm, setFormIndicator] = React.useState(false)
   const [isSubmitDisabled, setSubmitState] = React.useState(false)
+  const [, { isAuthorized, signIn }] = useOmgSession()
+  const navigate = useNavigate()
+
+  if (isAuthorized()) navigate('/feed')
 
   const form = useForm({
     initialValues: { login: '', password: '' } satisfies Credentials,
@@ -34,12 +39,12 @@ export const SignInPage: React.FC = () => {
   const handleSubmit = React.useCallback((values: Credentials) => {
     setFormIndicator(true)
     Promise.all([
-      omgClient.auth.signIn(values),
-      new Promise(r => setTimeout(r, 1000)),
+      signIn(values),
+      delay(1, 'second'),
     ])
       .then(([response]) => {
         if (response.isResolved) {
-        // TODO
+          navigate('/profile')
         } else {
           setSubmitState(true)
           form.setErrors({
@@ -58,7 +63,7 @@ export const SignInPage: React.FC = () => {
       .finally(() => {
         setFormIndicator(false)
       })
-  }, [form])
+  }, [form, signIn, navigate])
 
   return (
     <Stack gap="xl" style={{ width: 350 }}>

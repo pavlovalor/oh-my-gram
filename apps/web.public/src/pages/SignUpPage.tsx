@@ -1,21 +1,21 @@
 import { Divider, Stack, TextInput, Button, Group, ActionIcon, Loader, Tooltip } from '@mantine/core'
 import { IconAsterisk, IconEyeClosed, IconEye, IconFingerprint, IconUser, IconBrandGoogle, IconAt, IconPhone } from '@tabler/icons-react'
 import { SignUpWithCredentialsRequestSchema, type Credentials } from '@omg/public-contracts-registry'
+import { Link, useNavigate } from 'react-router'
+import { useOmgSession } from '~/client'
 import { zodResolver } from 'mantine-form-zod-resolver'
 import { useForm } from '@mantine/form'
-import { Link } from 'react-router'
-import * as React from 'react'
 import { delay } from '~/utils'
-import { useOmgSession } from '~/client'
+import * as React from 'react'
 
 
 export const SignUpPage: React.FC = () => {
   const [isPasswordVisible, setPasswordState] = React.useState(false)
   const [isSubmittingForm, setFormIndicator] = React.useState(false)
-  const [isSubmitDisabled, setSubmitState] = React.useState(false)
-  const [sessionState, sessionActions] = useOmgSession()
+  const [, { isAuthorized, signUp }] = useOmgSession()
+  const navigate = useNavigate()
 
-  console.log({ ...sessionState })
+  if (isAuthorized()) navigate('/profile')
 
   const form = useForm({
     initialValues: { login: '', password: '' } satisfies Credentials,
@@ -36,11 +36,20 @@ export const SignUpPage: React.FC = () => {
   const handleSubmit = React.useCallback(async (values: Credentials) => {
     setFormIndicator(true)
     await Promise.all([
+      signUp(values),
       delay(.5, 'seconds'),
-      sessionActions.signUp(values),
-    ])
-    setFormIndicator(false)
-  }, [sessionActions])
+    ]).then(([response]) => {
+      if (response.isResolved) {
+        navigate('/challenge/create-profile')
+      } else {
+        setFormIndicator(false)
+        form.setErrors({
+          login: response.payload.message,
+          password: response.payload.reason,
+        })
+      }
+    })
+  }, [signUp, navigate, form])
 
   return (
     <Stack gap="xl" style={{ width: 350 }}>
@@ -76,7 +85,7 @@ export const SignUpPage: React.FC = () => {
                 size="input-sm"
                 color="teal"
                 disabled={isSubmittingForm}>
-                {isSubmittingForm ? <Loader variant="" mr="md" size="sm" /> : <IconFingerprint />}
+                {isSubmittingForm ? <Loader variant="" size="sm" /> : <IconFingerprint />}
               </ActionIcon>
             </Tooltip>
 

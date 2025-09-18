@@ -42,6 +42,8 @@ export class SessionManager {
   constructor(private readonly client: OmgClient) {
     /** Initializing session state management */
     this.store = new Store(null, this.client.config.persist)
+
+    if (this.isAuthorized()) this.refresh()
   }
 
   /**
@@ -62,12 +64,14 @@ export class SessionManager {
    * @param credentials - The credentials to authenticate the user.
    * @returns A promise that resolves when the sign-in process is complete.
    */
-  public async signIn(credentials: Auth.Credentials): Promise<void> {
+  public async signIn(credentials: Auth.Credentials) {
     const response = await this.client.auth.signIn(credentials)
-    if (!response.isResolved) throw Error('Failed to sign in')
+    if (response.isResolved) {
+      this.consumeTokenPair(response.payload)
+      this.applyInterceptors()
+    }
 
-    this.consumeTokenPair(response.payload)
-    this.applyInterceptors()
+    return response
   }
 
   /**
@@ -78,12 +82,14 @@ export class SessionManager {
    * @param credentials - The credentials to authenticate the user.
    * @returns A promise that resolves when the sign-in process is complete.
    */
-  public async signUp(credentials: Auth.Credentials): Promise<void> {
+  public async signUp(credentials: Auth.Credentials) {
     const response = await this.client.auth.signUp(credentials)
-    if (!response.isResolved) throw Error('Failed to sign up')
+    if (response.isResolved) {
+      this.consumeTokenPair(response.payload)
+      this.applyInterceptors()
+    }
 
-    this.consumeTokenPair(response.payload)
-    this.applyInterceptors()
+    return response
   }
 
   /**
