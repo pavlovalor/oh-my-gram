@@ -1,9 +1,8 @@
 import { Injectable, CanActivate, ExecutionContext, Logger } from '@nestjs/common'
+import { type RequestAuthPartition } from './authz.types'
 import { Reflector } from '@nestjs/core'
 import { Observable } from 'rxjs'
 import { AuthzCheck } from './authz.decorator'
-import { AccessTokenPayload } from './authz.types'
-import * as dayjs from 'dayjs'
 import { AuthzTokenDataKey } from './authz.constants'
 
 
@@ -22,8 +21,8 @@ export class AuthzGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest()
     const options = this.reflector.get(AuthzCheck, context.getHandler())
-    const tokenData = request[AuthzTokenDataKey] as AccessTokenPayload | null
-    const isExpiredToken = tokenData && dayjs(tokenData.eat * 1000).isBefore()
+    const tokenData = request[AuthzTokenDataKey] as RequestAuthPartition | null
+    const isExpiredToken = tokenData && tokenData.headers.tokenExpiresAt.isBefore()
     const isAnonymous = !tokenData
 
     if (!options) {

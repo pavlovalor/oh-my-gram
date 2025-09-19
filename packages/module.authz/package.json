@@ -23,6 +23,7 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@omg/utils-module": "workspace:*",
+    "@omg/public-contracts-registry": "workspace:*",
     "@types/cli-color": "^2.0.6",
     "cli-color": "^2.0.4",
     "jose": "^6.0.12",

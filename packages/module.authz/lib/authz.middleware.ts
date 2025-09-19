@@ -1,9 +1,8 @@
 import { Injectable, Logger, type NestMiddleware } from '@nestjs/common'
 import { Request, Response, NextFunction } from 'express'
-import { AuthzService } from './authz.service'
-import * as dayjs from 'dayjs'
-import * as color from 'cli-color'
 import { AuthzTokenDataKey } from './authz.constants'
+import { AuthzService } from './authz.service'
+import * as color from 'cli-color'
 
 
 const dateFormat = 'MM/DD/YYYY, H:mm:ss A'
@@ -43,7 +42,7 @@ export class AuthzMiddleware implements NestMiddleware {
       return next()
     }
 
-    const [tokenData, isExpiredToken] = await this.authzService
+    const [parsed, { isExpired: isExpiredToken }] = await this.authzService
       .verifyJwt(bearerToken, { ignoreExpired: true })
       .catch((exception: Error) => {
         this.logger.warn(`Ignoring AccessToken. Reason: ${exception.message}`)
@@ -53,14 +52,14 @@ export class AuthzMiddleware implements NestMiddleware {
     if (isExpiredToken)
       this.logger.warn(`Got expired AccessToken`)
 
-    if (tokenData) {
+    if (parsed) {
       this.logger.debug(`Token summary:`)
-      this.logger.debug(`Expires at:         ${dayjs(tokenData.eat * 1000).format(dateFormat)}`)
-      this.logger.debug(`Signed at:          ${dayjs(tokenData.iat * 1000).format(dateFormat)}`)
-      this.logger.debug(`Session started at: ${dayjs(tokenData.sat * 1000).format(dateFormat)}`)
-      this.logger.debug(`Session ID:  ${color.green(tokenData.sid)}`)
-      this.logger.debug(`Identity ID: ${color.green(tokenData.uid)}`)
-      request[AuthzTokenDataKey] = tokenData
+      this.logger.debug(`Expires at:         ${parsed.headers.tokenExpiresAt.format(dateFormat)}`)
+      this.logger.debug(`Signed at:          ${parsed.headers.tokenCreatedAt.format(dateFormat)}`)
+      this.logger.debug(`Session started at: ${parsed.headers.sessionCreatedAt.format(dateFormat)}`)
+      this.logger.debug(`Session ID:  ${color.green(parsed.headers.sessionId)}`)
+      this.logger.debug(`Identity ID: ${color.green(parsed.payload.identityId)}`)
+      request[AuthzTokenDataKey] = parsed
     } else {
       this.logger.verbose('Treating as an anonymous request')
       request[AuthzTokenDataKey] = null

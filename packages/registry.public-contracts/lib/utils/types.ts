@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { type AxiosRequestConfig, type AxiosResponse } from 'axios'
+import { type AxiosRequestConfig } from 'axios'
 import { IssueResponse } from '../common'
 
 export type UnionToTuple<$Union> = UnionToTupleHelper<$Union, []>;
@@ -17,9 +17,6 @@ export interface HistoryRecord {
   issuedAt: string;
   issuedBy: string;
 }
-
-type HTTPMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
-
 
 export interface OmgResponseMeta {
   meta: {

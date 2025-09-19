@@ -1,10 +1,10 @@
-import { AccessTokenHeaderSchema, AccessTokenPayloadSchema } from './authz.schemas'
+import { ShorthandKeys, AccessTokenPayload, AccessTokenHeaders, AccessTokenHeadersSchema, AccessTokenPayloadSchema } from '@omg/public-contracts-registry'
+import { AuthzModuleOptions, TokenHeaders, TokenPayload, TokenValidationOptions } from './authz.types'
 import { AuthzModuleConfigInjectionToken, JwtAlgorithmDigestSet } from './authz.constants'
 import { JwtRedisRepository } from './repositories/jwt.repository'
 import { JwkData, JwkRedisRepository } from './repositories/jwk.repository'
 import { Injectable, Inject } from '@nestjs/common'
 import { randomArrayItem } from '@omg/utils-module'
-import * as Types from './authz.types'
 import * as crypto from 'node:crypto'
 import * as dayjs from 'dayjs'
 
@@ -13,44 +13,51 @@ import * as dayjs from 'dayjs'
 export class AuthzService {
   constructor(
     @Inject(AuthzModuleConfigInjectionToken)
-    private readonly authzModuleOptions: Types.AuthzModuleOptions,
+    private readonly authzModuleOptions: AuthzModuleOptions,
     private readonly jwtRepository: JwtRedisRepository,
     private readonly jwkRepository: JwkRedisRepository,
   ) {}
 
-  public async encodeJWT(meta: Types.TokenMeta, _payload?: object): Promise<string> {
+  /**
+   * Converts meta and payload into a valid JWT
+   * @param meta
+   * @param payload
+   * @returns JWT string in format `<header[base64].payload[pase64].signature>`
+   */
+  public async encodeJWT(meta: TokenHeaders, payload: TokenPayload): Promise<string> {
     const [, type] = randomArrayItem(JwtAlgorithmDigestSet)
     const encryptionKey = await this.jwkRepository.getLatest()
-    const sat = dayjs(meta.sat)
-    const iat = dayjs(meta.iat)
-    const eat = iat.add(meta.ttl, 'seconds')
 
-    const tokenHeader: Types.AccessTokenHeader = {
-      alg: type,
-      typ: 'JWT',
+    const tokenHeaders: AccessTokenHeaders = {
+      [ShorthandKeys.TokenType]: 'JWT',
+      [ShorthandKeys.TokenCreatedAt]: meta.tokenCreatedAt.unix(),
+      [ShorthandKeys.TokenExpiresAt]: meta.sessionCreatedAt.add(meta.timeToLive, 'seconds').unix(),
+      [ShorthandKeys.TokenEncryptionAlgorithm]: type,
+      [ShorthandKeys.TokenEncryptionKeyId]: encryptionKey.id,
+      [ShorthandKeys.SessionCreatedAt]: meta.sessionCreatedAt.unix(),
+      [ShorthandKeys.SessionId]: meta.sessionId,
+      [ShorthandKeys.Realm]: 'public',
     }
 
-    const tokenPayload: Types.AccessTokenPayload = {
-      eat: eat.unix(),
-      sat: sat.unix(),
-      iat: iat.unix(),
-      uid: meta.uid,
-      sid: meta.sid,
-      kid: encryptionKey.id,
-      // add more payload here
+    const tokenPayload: AccessTokenPayload = {
+      [ShorthandKeys.IdentityId]: payload.identityId,
+      [ShorthandKeys.ProfileId]: payload.profileId,
+      [ShorthandKeys.Challenges]: payload.challenges,
+      [ShorthandKeys.Permissions]: payload.permissions,
+      [ShorthandKeys.Restrictions]: payload.restrictions,
     }
 
-    const encodedHeader = this.encodeTokenPart(tokenHeader)
+    const encodedHeaders = this.encodeTokenPart(tokenHeaders)
     const encodedPayload = this.encodeTokenPart(tokenPayload)
     const signature = crypto
       .createHmac(type, this.getCombinedBufferKey(encryptionKey))
-      .update(`${encodedHeader}.${encodedPayload}`)
+      .update(`${encodedHeaders}.${encodedPayload}`)
       .digest('base64')
       .replace(/=/g, '')
       .replace(/\+/g, '-')
       .replace(/\//g, '_')
 
-    return `${encodedHeader}.${encodedPayload}.${signature}`
+    return `${encodedHeaders}.${encodedPayload}.${signature}`
   }
 
 
@@ -64,10 +71,10 @@ export class AuthzService {
    * @throws If the token is invalid, expired, or fails to meet the validation
    *  criteria specified in the options.
    */
-  public async verifyJwt(token: string, options?: Types.TokenValidationOptions) {
+  public async verifyJwt(token: string, options?: TokenValidationOptions) {
     // Step 1: Split the token into header, payload, and signature
     const [encodedHeader, encodePayload, receivedSignature] = token.split('.')
-    let header: Types.AccessTokenHeader, payload: Types.AccessTokenPayload
+    const raw: {headers?: AccessTokenHeaders, payload?: AccessTokenPayload} = {}
 
     if (!encodedHeader || !encodePayload || !receivedSignature)
       throw new Error('Invalid token format')
@@ -77,22 +84,40 @@ export class AuthzService {
       const unsafeHeader = this.decodeTokenPart(encodedHeader)
       const unsafePayload = this.decodeTokenPart(encodePayload)
 
-      ;[header, payload] = await Promise.all([
-        AccessTokenHeaderSchema.parseAsync(unsafeHeader),
+      ;[raw.headers, raw.payload] = await Promise.all([
+        AccessTokenHeadersSchema.parseAsync(unsafeHeader),
         AccessTokenPayloadSchema.parseAsync(unsafePayload),
       ])
-    } catch (_exception: unknown) {
-      throw new Error('Corrupted token payload')
+    } catch (exception: unknown) {
+      throw new Error('Corrupted token payload', { cause: exception })
     }
 
-    const encryptionKey = await this.jwkRepository.getById(payload.kid)
+    const headers = {
+      realm: raw.headers[ShorthandKeys.Realm],
+      sessionId: raw.headers[ShorthandKeys.SessionId],
+      sessionCreatedAt: dayjs.unix(raw.headers[ShorthandKeys.SessionCreatedAt]),
+      tokenCreatedAt: dayjs.unix(raw.headers[ShorthandKeys.TokenCreatedAt]),
+      tokenExpiresAt: dayjs.unix(raw.headers[ShorthandKeys.TokenExpiresAt]),
+    }
+
+    const payload = {
+      identityId: raw.payload[ShorthandKeys.IdentityId],
+      profileId: raw.payload[ShorthandKeys.ProfileId] ?? undefined,
+      challenges: raw.payload[ShorthandKeys.Challenges],
+      permissions: raw.payload[ShorthandKeys.Permissions],
+      restrictions: raw.payload[ShorthandKeys.Restrictions],
+    }
+
+    const encryptionAlgorithm = headers[ShorthandKeys.TokenEncryptionAlgorithm]
+    const encryptionKeyId = headers[ShorthandKeys.TokenEncryptionKeyId]
+    const encryptionKey = await this.jwkRepository.getById(encryptionKeyId)
 
     if (!encryptionKey)
       throw new Error('Encryption key not found')
 
     // Step 3: Verify the signature
     const expectedSignature = crypto
-      .createHmac(header.alg, this.getCombinedBufferKey(encryptionKey))
+      .createHmac(encryptionAlgorithm, this.getCombinedBufferKey(encryptionKey))
       .update(`${encodedHeader}.${encodePayload}`)
       .digest('base64')
       .replace(/=/g, '')
@@ -103,10 +128,10 @@ export class AuthzService {
       throw new Error('Invalid token signature')
 
     // Step 4: Checking expiration date if required
-    const isExpired = Boolean(!options?.ignoreExpired && payload.eat && dayjs(payload.eat * 1000).isBefore())
+    const isExpired = Boolean(!options?.ignoreExpired && headers.tokenExpiresAt.isBefore())
 
     // Step 5: If everything good, just return the payload
-    return [payload, isExpired] as const
+    return [{ headers, payload }, { isExpired }] as const
   }
 
 

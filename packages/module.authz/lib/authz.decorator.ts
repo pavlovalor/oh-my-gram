@@ -1,26 +1,25 @@
 import { Reflector } from '@nestjs/core'
-import { type AuthzGuardOptions, AccessTokenPayload } from './authz.types'
+import { RequestAuthPartition, TokenHeaders, TokenPayload, type AuthzGuardOptions } from './authz.types'
 import { createParamDecorator, type ExecutionContext } from '@nestjs/common'
 import { AuthzTokenDataKey } from './authz.constants'
 
 
 export const AuthzCheck = Reflector.createDecorator<AuthzGuardOptions>()
 
-
-export interface AuthzPayload {
-  identityId: AccessTokenPayload['uid'],
-  sessionId: AccessTokenPayload['sid'],
-}
+export type AuthzPayload
+  = Pick<TokenPayload, 'identityId'>
+  & Pick<TokenHeaders, 'sessionId'>
 
 
+/** Extracts auth information based on applied access token */
 export const AuthzData = createParamDecorator(
   (_: void, context: ExecutionContext): AuthzPayload | null => {
     const request = context.switchToHttp().getRequest()
-    const payload = request[AuthzTokenDataKey] as AccessTokenPayload
+    const tokenData = request[AuthzTokenDataKey] as RequestAuthPartition | null
 
-    return payload ? {
-      identityId: payload.uid,
-      sessionId: payload.sid,
+    return tokenData ? {
+      ...tokenData.headers,
+      ...tokenData.payload,
     } : null
   },
 )

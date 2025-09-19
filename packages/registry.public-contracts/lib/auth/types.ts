@@ -8,3 +8,4 @@ export type RefreshSessionRequest = Infer<typeof Schema.RefreshSessionRequestSch
 export type RefreshToken = Infer<typeof Schema.RefreshTokenSchema>
 export type AccessToken = Infer<typeof Schema.AccessTokenSchema>
 export type AccessTokenPayload = Infer<typeof Schema.AccessTokenPayloadSchema>
+export type AccessTokenHeaders = Infer<typeof Schema.AccessTokenHeadersSchema>

@@ -29,6 +29,12 @@ export const IssueSchema = zod.object({
   meta: zod.record(zod.unknown()).optional(),
 })
 
+export const IntentDefinitionSchema = zod.tuple([
+  zod.string(),
+  zod.record(zod.unknown()),
+])
+
+export const UnixTimeSchema = zod.number().positive()
 
 export const IdentifierSchema = zod.string().uuid()
 

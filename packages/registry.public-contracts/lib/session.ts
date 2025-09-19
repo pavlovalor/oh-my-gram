@@ -15,11 +15,14 @@ const RETRY_FLAG = Symbol('Request retry indicator')
 export interface SessionState {
   refreshToken: Auth.TokenPairResponse['refreshToken'],
   accessToken: Auth.TokenPairResponse['accessToken'],
-  // permissions: Auth.AccessTokenPayload['permissions'],
-  // properties: Auth.AccessTokenPayload['properties'],
+  permissions: Auth.AccessTokenPayload['prm'],
+  challenges: Auth.AccessTokenPayload['chl'],
+  restrictions: Auth.AccessTokenPayload['rst'],
+  signedInAt: Auth.AccessTokenHeaders['sat'],
+  // properties: Auth.AccessTokenPayload['properties'], // TODO switch to 'profile' object, add 'profileId' in.
   identityId: Auth.AccessTokenPayload['uid'],
   profileId: Auth.AccessTokenPayload['pid'],
-  sessionId: Auth.AccessTokenPayload['sid'],
+  sessionId: Auth.AccessTokenHeaders['sid'],
 }
 
 /**
@@ -129,17 +132,29 @@ export class SessionManager {
    * @param tokenPair - The pair of tokens (refresh and access) to be consumed.
    */
   private consumeTokenPair(tokenPair: Auth.TokenPairResponse): void {
-    const accessTokenBody = atob(tokenPair.accessToken.value.split('.')[1]!)
-    const accessTokenPayload: Auth.AccessTokenPayload = JSON.parse(accessTokenBody)
+    const [tokenHeadersPartition, tokenPayloadPartition] = tokenPair.accessToken.value.split('.')
+    const accessTokenHeaders: Auth.AccessTokenHeaders = this.parseTokenPartition(tokenHeadersPartition)
+    const accessTokenPayload: Auth.AccessTokenPayload = this.parseTokenPartition(tokenPayloadPartition)
+
     this.store.setState({
       refreshToken: tokenPair.refreshToken,
       accessToken: tokenPair.accessToken,
       // permissions: accessTokenPayload.permissions,
       // properties: accessTokenPayload.properties,
-      profileId: accessTokenPayload.pid,
-      identityId: accessTokenPayload.uid,
-      sessionId: accessTokenPayload.sid,
+      profileId: accessTokenPayload[Auth.ShorthandKeys.ProfileId],
+      identityId: accessTokenPayload[Auth.ShorthandKeys.IdentityId],
+      sessionId: accessTokenHeaders[Auth.ShorthandKeys.SessionId],
+      signedInAt: accessTokenHeaders[Auth.ShorthandKeys.SessionCreatedAt],
+      challenges: accessTokenPayload[Auth.ShorthandKeys.Challenges],
+      restrictions: accessTokenPayload[Auth.ShorthandKeys.Restrictions],
+      permissions: accessTokenPayload[Auth.ShorthandKeys.Permissions],
     })
+  }
+
+
+  private parseTokenPartition(tokenPartition: string) {
+    const body = atob(tokenPartition)
+    return JSON.parse(body)
   }
 
 
