@@ -17,6 +17,7 @@ import { SignInPage } from '~/pages/SignInPage'
 import { SignUpPage } from '~/pages/SignUpPage'
 import { ProfileSettingsPage } from '~/pages/ProfileSettingsPage'
 import { CredsRecoveryPage } from './pages/CredsRecoveryPage'
+import { ChallengePage } from './pages/ChallengePage'
 import { NotFoundPage } from '~/pages/NotFoundPage'
 
 
@@ -36,7 +37,7 @@ export const RouteTree: React.FC = () => (
       <Route path="feed" element={<FeedPage />} />
       <Route path="its/:profile" element={<ProfilePage />} />
       <Route path="post/:post" element={<PostPage />} />
-
+      <Route path="challenge/:challengeType" element={<ChallengePage />} />
       <Route path="settings" element={<SettingsLayout />}>
         <Route path="profile" element={<ProfileSettingsPage />} />
 
