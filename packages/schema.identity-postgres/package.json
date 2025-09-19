@@ -20,6 +20,7 @@
   "license": "MIT",
   "dependencies": {
     "@omg/environment-module": "workspace:*",
+    "@omg/utils-module": "workspace:*",
     "@nestjs/common": "^11.1.3",
     "@nestjs/config": "^4.0.2",
     "@types/cli-color": "^2.0.6",

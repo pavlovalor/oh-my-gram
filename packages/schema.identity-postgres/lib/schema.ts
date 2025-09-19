@@ -24,6 +24,7 @@
  * @module drizzleSchema
  */
 import { varchar, timestamp, uuid, boolean, date, foreignKey, pgSchema, inet } from 'drizzle-orm/pg-core'
+import { roles, challengeTypes, clientApplicationTypes } from '@omg/utils-module'
 import { sql, relations } from 'drizzle-orm'
 import { jsonb } from 'drizzle-orm/pg-core'
 
@@ -32,19 +33,10 @@ export const coreSchema = pgSchema('core')
 export const authSchema = pgSchema('auth')
 
 
-/** Client application categories */
-export const applicationType = authSchema.enum('application_type', [
-  'web',
-  'mobile',
-  'desktop',
-])
-
-/** Challenge types */
-export const challengeType = coreSchema.enum('challenge_type', [
-  'profile.create',
-  'profile.update',
-  'settings.update',
-])
+/** Enums */
+export const applicationType = authSchema.enum('application_type', clientApplicationTypes)
+export const challengeType = coreSchema.enum('challenge_type', challengeTypes)
+export const rolesEnum = coreSchema.enum('identity_role', roles)
 
 
 /**
@@ -56,6 +48,7 @@ export const identityTable = coreSchema.table('identity', {
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp(),
   removedAt: timestamp(),
+  roles: rolesEnum().array().notNull(),
 })
 
 export const identityRelations = relations(identityTable, connect => ({
@@ -77,12 +70,12 @@ export const emailTable = coreSchema.table('email', {
   verifiedAt: timestamp(),
   identityId: uuid().notNull(),
   value: varchar({ length: 128 }).unique().notNull(),
-}, currentTable => ({
-  identityReference: foreignKey({
+}, currentTable => [
+  foreignKey({
     columns: [currentTable.identityId],
     foreignColumns: [identityTable.id],
   }),
-}))
+])
 
 export const emailRelations = relations(emailTable, connect => ({
   identity: connect.one(identityTable, {
@@ -102,12 +95,12 @@ export const phoneNumberTable = coreSchema.table('phone_number', {
   isVerified: boolean().default(false).notNull(),
   identityId: uuid().notNull(),
   value: varchar({ length: 15 }).notNull(),
-}, currentTable => ({
-  identityReference: foreignKey({
+}, currentTable => [
+  foreignKey({
     columns: [currentTable.identityId],
     foreignColumns: [identityTable.id],
   }),
-}))
+])
 
 export const phoneNumberRelations = relations(phoneNumberTable, connect => ({
   identity: connect.one(identityTable, {
@@ -127,12 +120,12 @@ export const passwordHashTable = coreSchema.table('password', {
   expiresAt: date(),
   identityId: uuid().notNull(),
   value: varchar({ length: 128 }).notNull(),
-}, currentTable => ({
-  identityReference: foreignKey({
+}, currentTable => [
+  foreignKey({
     columns: [currentTable.identityId],
     foreignColumns: [identityTable.id],
   }),
-}))
+])
 
 export const passwordHashRelations = relations(passwordHashTable, connect => ({
   identity: connect.one(identityTable, {
@@ -153,12 +146,12 @@ export const challengeTable = coreSchema.table('challenge', {
   isOptional: boolean(),
   isPersistent: boolean(),
   identityId: uuid().notNull(),
-}, currentTable => ({
-  identityReference: foreignKey({
+}, currentTable => [
+  foreignKey({
     columns: [currentTable.identityId],
     foreignColumns: [identityTable.id],
   }),
-}))
+])
 
 export const challengeRelations = relations(challengeTable, connect => ({
   identity: connect.one(identityTable, {
@@ -198,16 +191,16 @@ export const sessionTable = authSchema.table('session', {
   refreshToken: varchar({ length: 32 }).unique().notNull(),
   identityId: uuid().notNull(),
   deviceId: uuid(),
-}, currentTable => ({
-  identityReference: foreignKey({
+}, currentTable => [
+  foreignKey({
     columns: [currentTable.identityId],
     foreignColumns: [identityTable.id],
   }),
-  deviceReference: foreignKey({
+  foreignKey({
     columns: [currentTable.deviceId],
     foreignColumns: [deviceTable.id],
   }),
-}))
+])
 
 export const sessionRelations = relations(sessionTable, connect => ({
   identity: connect.one(identityTable, {
