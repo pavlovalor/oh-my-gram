@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { type AxiosRequestConfig } from 'axios'
-import { IssueResponse } from '../common'
+import { type IssueResponse } from '../common'
 
 export type UnionToTuple<$Union> = UnionToTupleHelper<$Union, []>;
 type UnionToTupleHelper<$Union, $Rest extends any[]> = {

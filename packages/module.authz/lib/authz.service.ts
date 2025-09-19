@@ -36,10 +36,10 @@ export class AuthzService {
       [ShorthandKeys.TokenEncryptionKeyId]: encryptionKey.id,
       [ShorthandKeys.SessionCreatedAt]: meta.sessionCreatedAt.unix(),
       [ShorthandKeys.SessionId]: meta.sessionId,
-      [ShorthandKeys.Realm]: 'public',
     }
 
     const tokenPayload: AccessTokenPayload = {
+      [ShorthandKeys.Roles]: payload.roles,
       [ShorthandKeys.IdentityId]: payload.identityId,
       [ShorthandKeys.ProfileId]: payload.profileId,
       [ShorthandKeys.Challenges]: payload.challenges,
@@ -79,6 +79,8 @@ export class AuthzService {
     if (!encodedHeader || !encodePayload || !receivedSignature)
       throw new Error('Invalid token format')
 
+    // TODO: check if token signature isn't in revoked via `jwtRepository`
+
     // Step 2: Decode and parse the header and payload
     try {
       const unsafeHeader = this.decodeTokenPart(encodedHeader)
@@ -93,7 +95,7 @@ export class AuthzService {
     }
 
     const headers = {
-      realm: raw.headers[ShorthandKeys.Realm],
+      roles: raw.headers[ShorthandKeys.Roles],
       sessionId: raw.headers[ShorthandKeys.SessionId],
       sessionCreatedAt: dayjs.unix(raw.headers[ShorthandKeys.SessionCreatedAt]),
       tokenCreatedAt: dayjs.unix(raw.headers[ShorthandKeys.TokenCreatedAt]),

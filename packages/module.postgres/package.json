@@ -2,7 +2,7 @@
   "name": "@omg/postgres-module",
   "private": true,
   "version": "0.0.0",
-  "description": "Collection of utilities to use across the backend",
+  "description": "Postgres Drizzle client disguising itself as a NextJS module",
   "main": "dist/index.js",
   "types": "lib/index.ts",
   "scripts": {
@@ -14,7 +14,8 @@
   "keywords": [
     "nestjs",
     "zod",
-    "utils"
+    "drizzle",
+    "postgres"
   ],
   "author": "",
   "license": "MIT",
@@ -29,5 +30,8 @@
     "@omg/typescript-config": "workspace:*",
     "eslint": "^9.0.0",
     "typescript-eslint": "^8.0.0"
+  },
+  "peerDependencies": {
+    "drizzle-orm": "*"
   }
 }

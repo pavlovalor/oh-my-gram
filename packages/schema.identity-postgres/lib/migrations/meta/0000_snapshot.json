@@ -1,5 +1,5 @@
 {
-  "id": "0e6725ed-c51f-4f33-8777-57c3e9eb4a6d",
+  "id": "7fb2ff4f-a678-4b3a-a8a9-5563c092de8c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -37,6 +37,82 @@
       },
       "indexes": {},
       "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "core.challenge": {
+      "name": "challenge",
+      "schema": "core",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "type": {
+          "name": "type",
+          "type": "challenge_type",
+          "typeSchema": "core",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "details": {
+          "name": "details",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        },
+        "isOptional": {
+          "name": "isOptional",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "isPersistent": {
+          "name": "isPersistent",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "identityId": {
+          "name": "identityId",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "challenge_identityId_identity_id_fk": {
+          "name": "challenge_identityId_identity_id_fk",
+          "tableFrom": "challenge",
+          "tableTo": "identity",
+          "schemaTo": "core",
+          "columnsFrom": [
+            "identityId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -214,6 +290,19 @@
         "removedAt": {
           "name": "removedAt",
           "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "roles": {
+          "name": "roles",
+          "type": "identity_role[]",
+          "typeSchema": "core",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lastUsedProfileId": {
+          "name": "lastUsedProfileId",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         }
@@ -456,6 +545,24 @@
         "web",
         "mobile",
         "desktop"
+      ]
+    },
+    "core.challenge_type": {
+      "name": "challenge_type",
+      "schema": "core",
+      "values": [
+        "profile.create",
+        "profile.update",
+        "settings.update"
+      ]
+    },
+    "core.identity_role": {
+      "name": "identity_role",
+      "schema": "core",
+      "values": [
+        "user",
+        "moderator",
+        "admin"
       ]
     }
   },

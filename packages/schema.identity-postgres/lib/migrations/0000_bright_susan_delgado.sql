@@ -3,11 +3,23 @@ CREATE SCHEMA "auth";
 CREATE SCHEMA "core";
 --> statement-breakpoint
 CREATE TYPE "auth"."application_type" AS ENUM('web', 'mobile', 'desktop');--> statement-breakpoint
+CREATE TYPE "core"."challenge_type" AS ENUM('profile.create', 'profile.update', 'settings.update');--> statement-breakpoint
+CREATE TYPE "core"."identity_role" AS ENUM('user', 'moderator', 'admin');--> statement-breakpoint
 CREATE TABLE "auth"."application" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"os" varchar(64),
 	"type" "auth"."application_type" NOT NULL,
 	"version" varchar(16)
+);
+--> statement-breakpoint
+CREATE TABLE "core"."challenge" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"createdAt" timestamp DEFAULT now(),
+	"type" "core"."challenge_type" NOT NULL,
+	"details" jsonb DEFAULT '{}'::jsonb NOT NULL,
+	"isOptional" boolean DEFAULT true NOT NULL,
+	"isPersistent" boolean DEFAULT false NOT NULL,
+	"identityId" uuid NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "auth"."device" (
@@ -36,7 +48,9 @@ CREATE TABLE "core"."identity" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"createdAt" timestamp DEFAULT now(),
 	"updatedAt" timestamp,
-	"removedAt" timestamp
+	"removedAt" timestamp,
+	"roles" "core"."identity_role"[] NOT NULL,
+	"lastUsedProfileId" uuid
 );
 --> statement-breakpoint
 CREATE TABLE "core"."password" (
@@ -67,6 +81,7 @@ CREATE TABLE "auth"."session" (
 	CONSTRAINT "session_refreshToken_unique" UNIQUE("refreshToken")
 );
 --> statement-breakpoint
+ALTER TABLE "core"."challenge" ADD CONSTRAINT "challenge_identityId_identity_id_fk" FOREIGN KEY ("identityId") REFERENCES "core"."identity"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "core"."email" ADD CONSTRAINT "email_identityId_identity_id_fk" FOREIGN KEY ("identityId") REFERENCES "core"."identity"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "core"."password" ADD CONSTRAINT "password_identityId_identity_id_fk" FOREIGN KEY ("identityId") REFERENCES "core"."identity"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "core"."phone_number" ADD CONSTRAINT "phone_number_identityId_identity_id_fk" FOREIGN KEY ("identityId") REFERENCES "core"."identity"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint

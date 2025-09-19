@@ -1,5 +1,6 @@
 import { Queue } from '../queues'
 import { CommandFactory } from '../base/command.factory'
+import { Role } from '@omg/public-contracts-registry'
 
 
 interface Token {
@@ -13,6 +14,7 @@ export class SignUpWithCredentialsCommand extends CommandFactory.create(
 )<{
   login: string,
   password: string,
+  roles: Role[],
 }, {
   identityId: string,
 }> {}
@@ -24,7 +26,6 @@ export class SignInWithCredentialsCommand extends CommandFactory.create(
 )<{
   login: string,
   password: string,
-  // TODO: realm
 }, {
   accessToken: Token,
   refreshToken: Token,
@@ -35,7 +36,8 @@ export class RefreshSessionCommand extends CommandFactory.create(
   'auth.refresh-session',
   Queue.AuthService,
 )<{
-  refreshToken: string
+  refreshToken: string,
+  profileId?: string,
 }, {
   accessToken: Token,
   refreshToken: Token,

@@ -2,6 +2,7 @@
 import { type ModuleMetadata } from '@nestjs/common'
 import { type AuthzService } from './authz.service'
 import { type Dayjs } from 'dayjs'
+import { Role } from '@omg/utils-module'
 
 
 export type RequestAuthPartition = Awaited<ReturnType<AuthzService['verifyJwt']>>[0]
@@ -26,10 +27,10 @@ export interface TokenHeaders {
   tokenCreatedAt: Dayjs,
   timeToLive: number,
   sessionId: string,
-  realm: 'public' | 'backoffice'
 }
 
 export interface TokenPayload {
+  roles: Role[],
   identityId: string,
   profileId?: string,
   challenges?: any[],

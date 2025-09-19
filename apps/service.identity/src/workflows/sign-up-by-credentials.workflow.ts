@@ -34,7 +34,7 @@ export class SignUpByCredentialsWorkflow implements WorkflowHandler<SignUpWithCr
     return await this.postgresClient.transaction(async transactionClient => {
       const [identity] = await transactionClient
         .insert(Schema.identityTable)
-        .values({})
+        .values({ roles: payload.roles })
         .returning()
 
       this.logger.debug(`Created identity with id: ${color.yellow(identity.id)}`)
@@ -42,14 +42,29 @@ export class SignUpByCredentialsWorkflow implements WorkflowHandler<SignUpWithCr
       await Promise.all([
         transactionClient
           .insert(Schema.passwordHashTable)
-          .values({ identityId: identity.id, value: passwordHashValue })
+          .values({
+            identityId: identity.id,
+            value: passwordHashValue,
+          })
           .returning(),
         transactionClient
           .insert(isEmail ? Schema.emailTable : Schema.phoneNumberTable)
-          .values({ identityId: identity.id, value: payload.login })
+          .values({
+            identityId: identity.id,
+            value: payload.login
+          }),
+        transactionClient
+          .insert(Schema.challengeTable)
+          .values({
+            type: 'profile.create',
+            identityId: identity.id,
+            isOptional: false,
+            isPersistent: true,
+          })
       ])
 
       this.logger.verbose('Login method saved')
+      this.logger.verbose('Challenge to create profile added')
       this.logger.verbose('Transaction complete')
 
       void await new IdentityCreatedEvent({

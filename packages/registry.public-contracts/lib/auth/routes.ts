@@ -1,4 +1,4 @@
-import { alignResponse, OmgResponse } from '../utils'
+import { alignResponse, type OmgResponse } from '../utils'
 import { type OmgClient, type OmgRequestOptions } from '../client'
 import * as Types from './types'
 

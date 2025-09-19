@@ -38,7 +38,7 @@ export class AuthController {
   public async signUp(
     @Body() dto: AuthDto.SignUpWithCredentialsRequest,
   ): Promise<AuthDto.TokenPairResponse> {
-    await new SignUpWithCredentialsCommand(dto)
+    await new SignUpWithCredentialsCommand({ ...dto, roles: ['user'] })
       .executeVia(this.natsClient)
       .catch(filterException([EmailTakenException, PhoneNumberTakenException], exception => {
         throw new BadRequestException(exception.getError())

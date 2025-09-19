@@ -21,7 +21,7 @@ export const CredsRecoveryPage: React.FC = () => {
     validateInputOnBlur: true,
   })
 
-  const handleSubmit = React.useCallback(async (values: any) => {
+  const handleSubmit = React.useCallback(async (_values: any) => {
     setFormIndicator(true)
     await new Promise(r => setTimeout(r, 3000))
     setFormIndicator(false)

@@ -5,6 +5,7 @@
   "description": "Collection of utilities to use across the backend",
   "main": "dist/index.js",
   "types": "lib/index.ts",
+  "files": ["dist"],
   "scripts": {
     "build": "tsc",
     "start:dev": "tsc --watch",

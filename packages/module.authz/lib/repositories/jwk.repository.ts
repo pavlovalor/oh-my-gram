@@ -1,6 +1,6 @@
 import { RedisService } from '@liaoliaots/nestjs-redis'
 import { JwtAlgorithmDigestSet } from '../authz.constants'
-import { AccessTokenHeader } from '../authz.types'
+import { AccessTokenHeaders } from '@omg/public-contracts-registry'
 import { randomArrayItem } from '@omg/utils-module'
 import { Injectable } from '@nestjs/common'
 import { randomUUID, randomBytes } from 'node:crypto'
@@ -14,7 +14,7 @@ export interface JwkData {
   value: string,
   meta: {
     createdAt: string,
-    type: AccessTokenHeader['alg'],
+    type: AccessTokenHeaders['alg'],
   },
 }
 

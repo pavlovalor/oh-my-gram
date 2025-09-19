@@ -24,7 +24,7 @@
  * @module drizzleSchema
  */
 import { varchar, timestamp, uuid, boolean, date, foreignKey, pgSchema, inet } from 'drizzle-orm/pg-core'
-import { roles, challengeTypes, clientApplicationTypes } from '@omg/utils-module'
+import { roles, challengeTypes, clientApplicationTypes } from '@omg/public-contracts-registry'
 import { sql, relations } from 'drizzle-orm'
 import { jsonb } from 'drizzle-orm/pg-core'
 
@@ -49,6 +49,7 @@ export const identityTable = coreSchema.table('identity', {
   updatedAt: timestamp(),
   removedAt: timestamp(),
   roles: rolesEnum().array().notNull(),
+  lastUsedProfileId: uuid(),
 })
 
 export const identityRelations = relations(identityTable, connect => ({
@@ -141,10 +142,10 @@ export const passwordHashRelations = relations(passwordHashTable, connect => ({
 export const challengeTable = coreSchema.table('challenge', {
   id: uuid().primaryKey().defaultRandom(),
   createdAt: timestamp().defaultNow(),
-  type: challengeType(),
-  details: jsonb(),
-  isOptional: boolean(),
-  isPersistent: boolean(),
+  type: challengeType().notNull(),
+  details: jsonb().notNull().default({}),
+  isOptional: boolean().notNull().default(true),
+  isPersistent: boolean().notNull().default(false),
   identityId: uuid().notNull(),
 }, currentTable => [
   foreignKey({

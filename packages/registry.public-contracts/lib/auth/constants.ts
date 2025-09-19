@@ -9,7 +9,7 @@ export enum ShorthandKeys {
   SessionId = 'sid',
   IdentityId = 'uid',
   ProfileId = 'pid',
-  Realm = 'rlm',
+  Roles = 'rls',
   Challenges = 'chl',
   Restrictions = 'rst',
   Permissions = 'prm',
@@ -31,7 +31,25 @@ export const JwtAlgorithmDigestSet = [
   'blake2s256'
 ] as const
 
-export const OmgRealms = [
-  'public',
-  'backoffice'
+export const roles = [
+  'user',
+  'moderator',
+  'admin',
 ] as const
+
+export const challengeTypes = [
+  'profile.create',
+  'profile.update',
+  'settings.update',
+] as const
+
+export const clientApplicationTypes = [
+  'web',
+  'mobile',
+  'desktop',
+] as const
+
+
+export type Role = typeof roles[number]
+export type ChallengeType = typeof challengeTypes[number]
+export type ClientApplicationType = typeof clientApplicationTypes[number]

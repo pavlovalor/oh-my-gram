@@ -19,6 +19,7 @@
   "license": "MIT",
   "dependencies": {
     "@nestjs/config": "^4.0.2",
+    "@omg/public-contracts-registry": "workspace:*",
     "@omg/utils-module": "workspace:*",
     "cli-color": "^2.0.4",
     "zod": "^3.25.67"

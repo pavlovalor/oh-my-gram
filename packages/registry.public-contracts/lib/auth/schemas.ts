@@ -1,5 +1,5 @@
 import { IdentifierSchema, IntentDefinitionSchema, UnixTimeSchema } from '../common/schemas'
-import { ShorthandKeys, JwtAlgorithmDigestSet, JwtType, OmgRealms } from './constants'
+import { ShorthandKeys, JwtAlgorithmDigestSet, JwtType, roles } from './constants'
 import * as zod from 'zod'
 
 
@@ -32,11 +32,11 @@ export const AccessTokenHeadersSchema = zod.object({
     .describe('Encryption algorithm in use'),
   [ShorthandKeys.TokenType]: zod.literal(JwtType)
     .describe('Token type'),
-  [ShorthandKeys.Realm]: zod.enum(OmgRealms)
-    .describe('The realm a token belongs to'),
 })
 
 export const AccessTokenPayloadSchema = zod.object({
+  [ShorthandKeys.Roles]: zod.array(zod.enum(roles))
+    .describe('Roles allow to perform certain actions and access certain resources'),
   [ShorthandKeys.IdentityId]: IdentifierSchema
     .describe('Identity identifier'),
   [ShorthandKeys.ProfileId]: IdentifierSchema.nullish()

@@ -38,7 +38,7 @@ export class SignInByCredentialsWorkflow implements WorkflowHandler<SignInWithCr
     this.logger.debug(`Login method: ${color.yellow(isEmail ? 'email' : 'phone number') + `[${payload.login}]`}`)
     this.logger.verbose('Initiating a transaction')
 
-    const [session] = await this.postgresClient.transaction(async transactionClient => {
+    const [session, identityId] = await this.postgresClient.transaction(async transactionClient => {
       const [identity] = await transactionClient
         .select()
         .from(Schema.identityCredentialsView)
@@ -54,9 +54,9 @@ export class SignInByCredentialsWorkflow implements WorkflowHandler<SignInWithCr
         })
       }
 
-      this.logger.log('Establishing a transaction')
+      this.logger.verbose('Establishing a transaction')
 
-      return await transactionClient
+      const [session] = await transactionClient
         .insert(Schema.sessionTable)
         .values({
           identityId: identity.id,
@@ -64,6 +64,8 @@ export class SignInByCredentialsWorkflow implements WorkflowHandler<SignInWithCr
           expiresAt: dayjs().add(RefreshTokenLifetime).toDate(),
         })
         .returning()
+
+      return [session, identity.id] as const
     })
 
     void await new SessionCreatedEvent({
@@ -74,16 +76,32 @@ export class SignInByCredentialsWorkflow implements WorkflowHandler<SignInWithCr
       correlationId: meta.correlationId!,
     }).passVia(this.natsClient)
 
+    this.logger.verbose('Checking challenges and restrictions')
+
+    const identity = await this.postgresClient.query.identityTable.findFirst({
+      where: fields => eq(fields.id, identityId),
+      with: {
+        challenges: true,
+        // restrictions: true,
+      }
+    })
+
+    this.logger.debug(`Challenges found: ${color.yellow(identity!.challenges.length)}`)
+    // TODO this.logger.debug(`Restrictions found: ${color.yellow(identity!.restrictions.length)}`)
+    this.logger.verbose('Constructing response token pair')
+
     return {
       accessToken: {
         ttl: AccessTokenLifetime.asSeconds(),
         value: await this.authzService.encodeJWT({
-          ttl: AccessTokenLifetime.asSeconds(),
-          iat: session.updatedAt ?? session.createdAt,
-          sat: session.createdAt,
-          uid: session.identityId,
-          sid: session.id,
-          rlm: 'public' // TODO
+          timeToLive: AccessTokenLifetime.asSeconds(),
+          tokenCreatedAt: dayjs(session.updatedAt ?? session.createdAt),
+          sessionCreatedAt: dayjs(session.createdAt),
+          sessionId: session.id,
+        }, {
+          roles: identity!.roles,
+          challenges: identity!.challenges,
+          identityId: identity!.id,
         })
       },
       refreshToken: {

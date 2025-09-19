@@ -68,6 +68,16 @@
     "rxjs": "^7.8.1",
     "zod": "^3.25.67"
   },
+  "pnpm": {
+    "overrides": {
+      "drizzle-orm": "0.44.2"
+    },
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "drizzle-orm": "0.44.2"
+      }
+    }
+  },
   "volta": {
     "node": "24.8.0"
   }
